@@ -196,7 +196,8 @@ public class ConversationAdapter <V extends View & BindableConversationItem>
     MessageRecord messageRecord = getMessageRecord(id, cursor, type);
 
     if (messageRecord.isGroupAction() || messageRecord.isCallLog() || messageRecord.isJoined() || 
-        messageRecord.isExpirationTimerUpdate() || messageRecord.isEndSession() || messageRecord.isIdentityUpdate()) 
+        messageRecord.isExpirationTimerUpdate() || messageRecord.isEndSession() || messageRecord.isIdentityUpdate() ||
+        messageRecord.isGenericInfo())
    {
       return MESSAGE_TYPE_UPDATE;
     } else if (messageRecord.isOutgoing()) {

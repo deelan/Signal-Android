@@ -35,6 +35,7 @@ import org.thoughtcrime.securesms.sms.IncomingEncryptedMessage;
 import org.thoughtcrime.securesms.sms.IncomingEndSessionMessage;
 import org.thoughtcrime.securesms.sms.IncomingPreKeyBundleMessage;
 import org.thoughtcrime.securesms.sms.IncomingTextMessage;
+import org.thoughtcrime.securesms.sms.InfoMessage;
 import org.thoughtcrime.securesms.sms.OutgoingTextMessage;
 import org.thoughtcrime.securesms.util.Base64;
 import org.thoughtcrime.securesms.util.GroupUtil;
@@ -142,6 +143,7 @@ public class PushDecryptJob extends ContextJob {
         SignalServiceDataMessage message = content.getDataMessage().get();
 
         if      (message.isEndSession())               handleEndSessionMessage(masterSecret, envelope, message, smsMessageId);
+        else if (message.isPromote())                  handlePromoteMessage(masterSecret, envelope, message, smsMessageId);
         else if (message.isGroupUpdate())              handleGroupMessage(masterSecret, envelope, message, smsMessageId);
         else if (message.isExpirationUpdate())         handleExpirationUpdate(masterSecret, envelope, message, smsMessageId);
         else if (message.getAttachments().isPresent()) handleMediaMessage(masterSecret, envelope, message, smsMessageId);
@@ -207,6 +209,30 @@ public class PushDecryptJob extends ContextJob {
 
     SecurityEvent.broadcastSecurityUpdateEvent(context);
     MessageNotifier.updateNotification(context, masterSecret.getMasterSecret().orNull(), threadId);
+  }
+
+  private void handlePromoteMessage(@NonNull MasterSecretUnion        masterSecret,
+                                       @NonNull SignalServiceEnvelope    envelope,
+                                       @NonNull SignalServiceDataMessage message,
+                                       @NonNull Optional<Long>           smsMessageId)
+  {
+    EncryptingSmsDatabase smsDatabase         = DatabaseFactory.getEncryptingSmsDatabase(context);
+    IncomingTextMessage   incomingTextMessage = new IncomingTextMessage(envelope.getSource(),
+            envelope.getSourceDevice(),
+            message.getTimestamp(),
+            "", Optional.<SignalServiceGroup>absent(), 0);
+    InfoMessage                   infoMessage = new InfoMessage(incomingTextMessage, message.getBody().get());
+
+    long threadId;
+
+    Pair<Long, Long>          messageAndThreadId        = smsDatabase.insertMessageInbox(masterSecret, infoMessage);
+
+    threadId = messageAndThreadId.second;
+
+    DatabaseFactory.getThreadDatabase(context).setRead(threadId);
+    MessageNotifier.updateNotification(context, masterSecret.getMasterSecret().orNull());
+
+    MessageNotifier.setLastDesktopActivityTimestamp(message.getTimestamp());
   }
 
   private void handleGroupMessage(@NonNull MasterSecretUnion masterSecret,

@@ -66,6 +66,7 @@ public interface MmsSmsColumns {
     protected static final long GROUP_UPDATE_BIT            = 0x10000;
     protected static final long GROUP_QUIT_BIT              = 0x20000;
     protected static final long EXPIRATION_TIMER_UPDATE_BIT = 0x40000;
+    protected static final long GENERIC_INFO_BIT            = 0x80000;
 
     // Encrypted Storage Information
     protected static final long ENCRYPTION_MASK                  = 0xFF000000;
@@ -171,6 +172,10 @@ public interface MmsSmsColumns {
 
     public static boolean isExpirationTimerUpdate(long type) {
       return (type & EXPIRATION_TIMER_UPDATE_BIT) != 0;
+    }
+
+    public static boolean isGenericInfo(long type) {
+      return (type & GENERIC_INFO_BIT) != 0;
     }
 
     public static boolean isIncomingCall(long type) {

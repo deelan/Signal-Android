@@ -39,6 +39,7 @@ import org.thoughtcrime.securesms.recipients.RecipientFactory;
 import org.thoughtcrime.securesms.recipients.Recipients;
 import org.thoughtcrime.securesms.sms.IncomingGroupMessage;
 import org.thoughtcrime.securesms.sms.IncomingTextMessage;
+import org.thoughtcrime.securesms.sms.InfoMessage;
 import org.thoughtcrime.securesms.sms.OutgoingTextMessage;
 import org.thoughtcrime.securesms.util.JsonUtils;
 import org.whispersystems.jobqueue.JobManager;
@@ -500,6 +501,10 @@ public class SmsDatabase extends MessagingDatabase {
     } else if (message.isEndSession()) {
       type |= Types.SECURE_MESSAGE_BIT;
       type |= Types.END_SESSION_BIT;
+    }
+
+    if (message instanceof InfoMessage) {
+      type |= Types.GENERIC_INFO_BIT;
     }
 
     if (message.isPush())           type |= Types.PUSH_MESSAGE_BIT;

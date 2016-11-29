@@ -119,6 +119,10 @@ public abstract class DisplayRecord {
     return SmsDatabase.Types.isExpirationTimerUpdate(type);
   }
 
+  public boolean isGenericInfo() {
+    return SmsDatabase.Types.isGenericInfo(type);
+  }
+
   public boolean isCallLog() {
     return SmsDatabase.Types.isCallLog(type);
   }

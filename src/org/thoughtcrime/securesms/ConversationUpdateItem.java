@@ -91,6 +91,7 @@ public class ConversationUpdateItem extends LinearLayout
     this.sender.addListener(this);
 
     if      (messageRecord.isGroupAction())           setGroupRecord(messageRecord);
+    else if (messageRecord.isGenericInfo())           setGenericInfoRecord(messageRecord);
     else if (messageRecord.isCallLog())               setCallRecord(messageRecord);
     else if (messageRecord.isJoined())                setJoinedRecord(messageRecord);
     else if (messageRecord.isExpirationTimerUpdate()) setTimerRecord(messageRecord);
@@ -144,6 +145,13 @@ public class ConversationUpdateItem extends LinearLayout
 
   private void setJoinedRecord(MessageRecord messageRecord) {
     icon.setImageResource(R.drawable.ic_favorite_grey600_24dp);
+    icon.clearColorFilter();
+    body.setText(messageRecord.getDisplayBody());
+    date.setVisibility(View.GONE);
+  }
+
+  private void setGenericInfoRecord(MessageRecord messageRecord) {
+    icon.setImageResource(R.drawable.ic_info_outline_grey600_24dp);
     icon.clearColorFilter();
     body.setText(messageRecord.getDisplayBody());
     date.setVisibility(View.GONE);
