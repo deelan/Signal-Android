@@ -296,6 +296,8 @@ public class PushDecryptJob extends ContextJob {
       DatabaseFactory.getThreadDatabase(getContext()).setRead(threadId);
       MessageNotifier.updateNotification(getContext(), masterSecret.getMasterSecret().orNull());
     }
+
+    MessageNotifier.setLastDesktopActivityTimestamp(message.getTimestamp());
   }
 
   private void handleSynchronizeRequestMessage(@NonNull MasterSecretUnion masterSecret,
@@ -341,6 +343,8 @@ public class PushDecryptJob extends ContextJob {
       }
     }
 
+    MessageNotifier.setLastDesktopActivityTimestamp(envelopeTimestamp);
+    MessageNotifier.cancelDelayedNotifications();
     MessageNotifier.updateNotification(context, masterSecret.getMasterSecret().orNull());
   }
 
