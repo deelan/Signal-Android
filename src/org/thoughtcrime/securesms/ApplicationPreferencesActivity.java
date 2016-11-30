@@ -31,9 +31,9 @@ import org.thoughtcrime.securesms.crypto.MasterSecret;
 import org.thoughtcrime.securesms.preferences.AdvancedPreferenceFragment;
 import org.thoughtcrime.securesms.preferences.AppProtectionPreferenceFragment;
 import org.thoughtcrime.securesms.preferences.AppearancePreferenceFragment;
+import org.thoughtcrime.securesms.preferences.ChatsPreferenceFragment;
 import org.thoughtcrime.securesms.preferences.NotificationsPreferenceFragment;
 import org.thoughtcrime.securesms.preferences.SmsMmsPreferenceFragment;
-import org.thoughtcrime.securesms.preferences.ChatsPreferenceFragment;
 import org.thoughtcrime.securesms.service.KeyCachingService;
 import org.thoughtcrime.securesms.util.DynamicLanguage;
 import org.thoughtcrime.securesms.util.DynamicTheme;
@@ -58,6 +58,7 @@ public class ApplicationPreferencesActivity extends PassphraseRequiredActionBarA
   private static final String PREFERENCE_CATEGORY_CHATS          = "preference_category_chats";
   private static final String PREFERENCE_CATEGORY_DEVICES        = "preference_category_devices";
   private static final String PREFERENCE_CATEGORY_ADVANCED       = "preference_category_advanced";
+  private static final String PREFERENCE_CATEGORY_BILLING        = "preference_category_billing";
 
   private final DynamicTheme    dynamicTheme    = new DynamicTheme();
   private final DynamicLanguage dynamicLanguage = new DynamicLanguage();
@@ -142,6 +143,8 @@ public class ApplicationPreferencesActivity extends PassphraseRequiredActionBarA
         .setOnPreferenceClickListener(new CategoryClickListener(masterSecret, PREFERENCE_CATEGORY_DEVICES));
       this.findPreference(PREFERENCE_CATEGORY_ADVANCED)
         .setOnPreferenceClickListener(new CategoryClickListener(masterSecret, PREFERENCE_CATEGORY_ADVANCED));
+      this.findPreference(PREFERENCE_CATEGORY_BILLING)
+              .setOnPreferenceClickListener(new CategoryClickListener(masterSecret, PREFERENCE_CATEGORY_BILLING));
     }
 
     @Override
@@ -163,6 +166,8 @@ public class ApplicationPreferencesActivity extends PassphraseRequiredActionBarA
           .setSummary(AppearancePreferenceFragment.getSummary(getActivity()));
       this.findPreference(PREFERENCE_CATEGORY_CHATS)
           .setSummary(ChatsPreferenceFragment.getSummary(getActivity()));
+      this.findPreference(PREFERENCE_CATEGORY_BILLING)
+              .setSummary(BillingSetupActivity.getSummary(getActivity()));
     }
 
     private void setCategoryVisibility() {
@@ -207,6 +212,10 @@ public class ApplicationPreferencesActivity extends PassphraseRequiredActionBarA
           break;
         case PREFERENCE_CATEGORY_ADVANCED:
           fragment = new AdvancedPreferenceFragment();
+          break;
+        case PREFERENCE_CATEGORY_BILLING:
+          Intent billingIntent = new Intent(getActivity(), BillingSetupActivity.class);
+          startActivity(billingIntent);
           break;
         default:
           throw new AssertionError();

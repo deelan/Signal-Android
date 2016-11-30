@@ -122,6 +122,7 @@
         <item quantity="one">1 member</item>
         <item quantity="other">%d members</item>
     </plurals>
+    <string name="ConversationActivity_group_member_choose_action">Choose action</string>
     <string name="ConversationActivity_saved_draft">Saved draft</string>
     <string name="ConversationActivity_invalid_recipient">Invalid recipient!</string>
     <string name="ConversationActivity_calls_not_supported">Calls not supported</string>
@@ -233,12 +234,26 @@
     <string name="DeviceListActivity_unlinking_device">Unlinking device...</string>
     <string name="DeviceListActivity_unlinking_device_no_ellipsis">Unlinking device</string>
     <string name="DeviceListActivity_network_failed">Network failed!</string>
-
+    
     <!-- DeviceListItem -->
     <string name="DeviceListItem_unnamed_device">Unnamed device</string>
     <string name="DeviceListItem_linked_s">Linked %s</string>
     <string name="DeviceListItem_last_active_s">Last active %s</string>
     <string name="DeviceListItem_today">Today</string>
+
+    <!-- BillingListActivity -->
+    <string name="BillingListActivity_unlink_s">Unlink \'%s\'?</string>
+    <string name="BillingListActivity_unlinking_billing_warning">By unlinking this billing integration, you will not longer be able to receive payments.</string>
+    <string name="BillingListActivity_network_connection_failed">Network connection failed...</string>
+    <string name="BillingListActivity_try_again">Try again</string>
+    <string name="BillingListActivity_unlinking_billing">Unlinking billing integration...</string>
+    <string name="BillingListActivity_network_failed">Network failed!</string>
+    <string name="BillingListActivity_unlinking_billing_no_ellipsis">Unlinking billing integration</string>
+
+    <!-- BillingListItem -->
+    <string name="BillingListItem_linked_s">Linked %s</string>
+    <string name="BillingListItem_user_id_s">User ID: %s</string>
+    <string name="BillingListItem_today">Today</string>
 
     <!-- ShareActivity -->
     <string name="ShareActivity_share_with">Share with</string>
@@ -858,6 +873,7 @@
     <string name="registration_activity__register">Register</string>
     <string name="registration_activity__registration_will_transmit_some_contact_information_to_the_server_temporariliy">Registration transmits some contact information to the server. It is not stored.</string>
     <string name="registration_activity__powered_by_twilio">Powered by twilio</string>
+    <string name="registration_activity__skip">Skip</string>
 
     <!-- registration_problems -->
     <string name="registration_problems__some_possible_problems_include">Some possible problems

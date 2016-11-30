@@ -29,4 +29,12 @@
                 android:title="@string/preferences__advanced"
                 android:icon="?pref_ic_advanced"/>
 
+    <PreferenceCategory
+        android:title="Billing"
+        android:key="pref_key_storage_settings">
+        <Preference android:key="preference_category_billing"
+            android:title="Stripe Integration"
+            android:icon="?pref_ic_advanced"/>
+    </PreferenceCategory>
+
 </PreferenceScreen>

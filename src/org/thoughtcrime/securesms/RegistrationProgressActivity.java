@@ -62,6 +62,7 @@ public class RegistrationProgressActivity extends BaseActionBarActivity {
   private LinearLayout verificationFailureLayout;
   private LinearLayout connectivityFailureLayout;
   private RelativeLayout timeoutProgressLayout;
+  private LinearLayout skipButtonLayout;
 
   private ProgressBar registrationProgress;
   private ProgressBar connectingProgress;
@@ -85,6 +86,7 @@ public class RegistrationProgressActivity extends BaseActionBarActivity {
   private Button      connectivityFailureButton;
   private Button      callButton;
   private Button      verifyButton;
+  private Button      skipButton;
 
   private EditText    codeEditText;
 
@@ -153,13 +155,18 @@ public class RegistrationProgressActivity extends BaseActionBarActivity {
     this.connectivityFailureButton = (Button)      findViewById(R.id.connectivity_failure_edit_button);
     this.callButton                = (Button)      findViewById(R.id.call_button);
     this.verifyButton              = (Button)      findViewById(R.id.verify_button);
+    this.skipButton                = (Button)      findViewById(R.id.skip_timer_button);
     this.codeEditText              = (EditText)    findViewById(R.id.telephone_code);
     this.timeoutProgressLayout     = (RelativeLayout) findViewById(R.id.timer_progress_layout);
+    this.skipButtonLayout          = (LinearLayout) findViewById(R.id.skip_button_layout);
+    this.skipButtonLayout.setVisibility(View.INVISIBLE);
     Button editButton              = (Button)      findViewById(R.id.edit_button);
 
     editButton.setOnClickListener(new EditButtonListener());
     this.verificationFailureButton.setOnClickListener(new EditButtonListener());
     this.connectivityFailureButton.setOnClickListener(new EditButtonListener());
+
+    this.skipButton.setOnClickListener(new SkipButtonListener());
   }
 
   private void initializeLinks() {
@@ -227,6 +234,7 @@ public class RegistrationProgressActivity extends BaseActionBarActivity {
     this.generatingKeysText.setTextColor(UNFOCUSED_COLOR);
     this.gcmRegistrationText.setTextColor(UNFOCUSED_COLOR);
     this.timeoutProgressLayout.setVisibility(View.VISIBLE);
+    this.skipButtonLayout.setVisibility(View.INVISIBLE);
   }
 
   private void handleStateVerifying() {
@@ -247,6 +255,7 @@ public class RegistrationProgressActivity extends BaseActionBarActivity {
     this.gcmRegistrationText.setTextColor(UNFOCUSED_COLOR);
     this.registrationProgress.setVisibility(View.VISIBLE);
     this.timeoutProgressLayout.setVisibility(View.VISIBLE);
+    this.skipButtonLayout.setVisibility(View.VISIBLE);
   }
 
   private void handleStateGeneratingKeys() {
@@ -267,6 +276,7 @@ public class RegistrationProgressActivity extends BaseActionBarActivity {
     this.gcmRegistrationText.setTextColor(UNFOCUSED_COLOR);
     this.registrationProgress.setVisibility(View.INVISIBLE);
     this.timeoutProgressLayout.setVisibility(View.INVISIBLE);
+    this.skipButtonLayout.setVisibility(View.INVISIBLE);
   }
 
   private void handleStateGcmRegistering() {
@@ -287,6 +297,7 @@ public class RegistrationProgressActivity extends BaseActionBarActivity {
     this.gcmRegistrationText.setTextColor(FOCUSED_COLOR);
     this.registrationProgress.setVisibility(View.INVISIBLE);
     this.timeoutProgressLayout.setVisibility(View.INVISIBLE);
+    this.skipButtonLayout.setVisibility(View.INVISIBLE);
   }
 
   private void handleGcmTimeout(RegistrationState state) {
@@ -429,6 +440,13 @@ public class RegistrationProgressActivity extends BaseActionBarActivity {
       activityIntent.putExtra("master_secret", masterSecret);
       startActivity(activityIntent);
       finish();
+    }
+  }
+
+  private class SkipButtonListener implements View.OnClickListener {
+    @Override
+    public void onClick(View v) {
+      registrationService.abortChallenge();
     }
   }
 

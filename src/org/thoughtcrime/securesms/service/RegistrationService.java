@@ -285,6 +285,10 @@ public class RegistrationService extends Service {
     notifyAll();
   }
 
+  public synchronized void abortChallenge() {
+    notifyAll();
+  }
+
   private void markAsVerifying(boolean verifying) {
     TextSecurePreferences.setVerifying(this, verifying);
 

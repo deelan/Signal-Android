@@ -2,10 +2,7 @@ package org.thoughtcrime.securesms;
 
 import android.content.Context;
 import android.content.DialogInterface;
-import android.content.Intent;
-import android.graphics.Rect;
 import android.os.AsyncTask;
-import android.provider.ContactsContract;
 import android.support.v7.app.AlertDialog;
 import android.util.Log;
 
@@ -79,16 +76,7 @@ public class GroupMembersDialog extends AsyncTask<Void, Void, Recipients> {
     public void onClick(DialogInterface dialogInterface, int item) {
       Recipient recipient = groupMembers.get(item);
 
-      if (recipient.getContactUri() != null) {
-        ContactsContract.QuickContact.showQuickContact(context, new Rect(0,0,0,0),
-                                                       recipient.getContactUri(),
-                                                       ContactsContract.QuickContact.MODE_LARGE, null);
-      } else {
-        final Intent intent = new Intent(Intent.ACTION_INSERT_OR_EDIT);
-        intent.putExtra(ContactsContract.Intents.Insert.PHONE, recipient.getNumber());
-        intent.setType(ContactsContract.Contacts.CONTENT_ITEM_TYPE);
-        context.startActivity(intent);
-      }
+      new GroupMemberOptionsDialog(this.context, recipient).display();
     }
   }
 

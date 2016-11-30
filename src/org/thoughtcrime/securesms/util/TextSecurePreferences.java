@@ -97,6 +97,8 @@ public class TextSecurePreferences {
   private static final String MULTI_DEVICE_PROVISIONED_PREF    = "pref_multi_device";
   public  static final String DIRECT_CAPTURE_CAMERA_ID         = "pref_direct_capture_camera_id";
 
+  public static final String BILLING_CREDENTIALS_PREF          = "pref_billing_credentials";
+
   public static void setDirectCaptureCameraId(Context context, int value) {
     setIntegerPrefrence(context, DIRECT_CAPTURE_CAMERA_ID, value);
   }
@@ -521,6 +523,14 @@ public class TextSecurePreferences {
     return getStringSetPreference(context,
                                   key,
                                   new HashSet<>(Arrays.asList(context.getResources().getStringArray(defaultValuesRes))));
+  }
+
+  public static void setBillingCredentials(Context context, String value) {
+    setStringPreference(context, BILLING_CREDENTIALS_PREF, value);
+  }
+
+  public static String getBillingCredentials(Context context) {
+    return getStringPreference(context, BILLING_CREDENTIALS_PREF, "{}");
   }
 
   public static void setBooleanPreference(Context context, String key, boolean value) {
