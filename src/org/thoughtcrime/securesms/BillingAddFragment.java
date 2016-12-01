@@ -84,7 +84,7 @@ public class BillingAddFragment extends Fragment {
         webSettings.setSupportZoom(true);
         webSettings.setBuiltInZoomControls(true);
 
-        webView.loadUrl(BillingSetupActivity.STRIPE_AUTH_URI);
+        webView.loadUrl(BuildConfig.STRIPE_AUTH_URI + BuildConfig.STRIPE_CLIENT_ID);
 
         return webView;
     }

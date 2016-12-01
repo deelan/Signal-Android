@@ -34,12 +34,6 @@ public class BillingSetupActivity extends PassphraseRequiredActionBarActivity im
     private final DynamicTheme    dynamicTheme    = new DynamicTheme();
     private final DynamicLanguage dynamicLanguage = new DynamicLanguage();
 
-    public static final String STRIPE_CLIENT_ID = "ca_9d5zgRRsPxO4utVTzd8uiQsve9rjuUaT"; // dev mode
-    private static final String STRIPE_API_KEY = "sk_test_fBBvMGwswzHZi5alFz46F1rt"; // dev mode
-    public static final String STRIPE_AUTH_URI = "https://connect.stripe.com/oauth/authorize?response_type=code&scope=read_write&client_id=" + STRIPE_CLIENT_ID;
-    private static final String STRIPE_OAUTH_URI = "https://connect.stripe.com/oauth/token";
-    public static final String STRIPE_OAUTH_REVOCATION_URI = "https://connect.stripe.com/oauth/deauthorize";
-
     private BillingAddFragment  billingAddFragment;
     private BillingListFragment billingListFragment;
 
@@ -107,7 +101,7 @@ public class BillingSetupActivity extends PassphraseRequiredActionBarActivity im
 
         StringRequest strRequest = new StringRequest(
                 Request.Method.POST,
-                STRIPE_OAUTH_URI,
+                BuildConfig.STRIPE_OAUTH_URI,
                 new Response.Listener<String>() {
 
                     @Override
@@ -135,8 +129,8 @@ public class BillingSetupActivity extends PassphraseRequiredActionBarActivity im
             protected Map<String, String> getParams() {
                 Map<String, String>  params = new HashMap<String, String>();
                 params.put("grant_type", "authorization_code");
-                params.put("client_id", STRIPE_CLIENT_ID);
-                params.put("client_secret", STRIPE_API_KEY);
+                params.put("client_id", BuildConfig.STRIPE_CLIENT_ID);
+                params.put("client_secret", BuildConfig.STRIPE_API_KEY);
                 params.put("code", code);
 
                 return params;
@@ -160,57 +154,49 @@ public class BillingSetupActivity extends PassphraseRequiredActionBarActivity im
                 getString(R.string.BillingListActivity_unlinking_billing),
                 true);
 
-        new AsyncTask<Void, Void, Void>()
-        {
-            @Override
-            protected Void doInBackground(Void... params) {
-                RequestQueue queue = Volley.newRequestQueue(BillingSetupActivity.this);
+        RequestQueue queue = Volley.newRequestQueue(BillingSetupActivity.this);
 
-                StringRequest strRequest = new StringRequest(
-                        Request.Method.POST,
-                        STRIPE_OAUTH_REVOCATION_URI,
-                        new Response.Listener<String>() {
-
-                            @Override
-                            public void onResponse(String response) {
-                                pd.dismiss();
-                                Toast.makeText(BillingSetupActivity.this, "Stripe access revoked!", Toast.LENGTH_SHORT).show();
-                                TextSecurePreferences.setBillingCredentials(BillingSetupActivity.this, null);
-
-                                billingListFragment.resetLoader();
-                            }
-                        }, new Response.ErrorListener() {
+        StringRequest strRequest = new StringRequest(
+                Request.Method.POST,
+                BuildConfig.STRIPE_OAUTH_REVOCATION_URI,
+                new Response.Listener<String>() {
 
                     @Override
-                    public void onErrorResponse(VolleyError error) {
+                    public void onResponse(String response) {
                         pd.dismiss();
-                        Toast.makeText(BillingSetupActivity.this, "Failed trying to revoke Stripe access!", Toast.LENGTH_SHORT).show();
+                        Toast.makeText(BillingSetupActivity.this, "Stripe access revoked!", Toast.LENGTH_SHORT).show();
+                        TextSecurePreferences.setBillingCredentials(BillingSetupActivity.this, null);
+
+                        billingListFragment.resetLoader();
                     }
-                }
-                ) {
-                    @Override
-                    protected Map<String, String> getParams() {
-                        Map<String, String> params = new HashMap<>();
-                        params.put("client_id", STRIPE_CLIENT_ID);
-                        params.put("stripe_user_id", userId);
+                }, new Response.ErrorListener() {
 
-                        return params;
-                    }
-
-                    @Override
-                    public Map<String, String> getHeaders() {
-                        Map<String, String> headers = new HashMap<>();
-                        headers.put("Authorization", "Bearer " + STRIPE_API_KEY);
-
-                        return headers;
-                    }
-                };
-
-                // add the request to the queue.
-                queue.add(strRequest);
-
-                return null;
+            @Override
+            public void onErrorResponse(VolleyError error) {
+                pd.dismiss();
+                Toast.makeText(BillingSetupActivity.this, "Failed trying to revoke Stripe access!", Toast.LENGTH_SHORT).show();
             }
-        }.execute();
+        }
+        ) {
+            @Override
+            protected Map<String, String> getParams() {
+                Map<String, String> params = new HashMap<>();
+                params.put("client_id", BuildConfig.STRIPE_CLIENT_ID);
+                params.put("stripe_user_id", userId);
+
+                return params;
+            }
+
+            @Override
+            public Map<String, String> getHeaders() {
+                Map<String, String> headers = new HashMap<>();
+                headers.put("Authorization", "Bearer " + BuildConfig.STRIPE_API_KEY);
+
+                return headers;
+            }
+        };
+
+        // add the request to the queue.
+        queue.add(strRequest);
     }
 }

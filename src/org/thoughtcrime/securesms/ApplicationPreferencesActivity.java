@@ -26,6 +26,15 @@ import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v4.preference.PreferenceFragment;
+import android.support.v7.app.AlertDialog;
+import android.widget.Toast;
+
+import com.android.volley.Request;
+import com.android.volley.RequestQueue;
+import com.android.volley.Response;
+import com.android.volley.VolleyError;
+import com.android.volley.toolbox.StringRequest;
+import com.android.volley.toolbox.Volley;
 
 import org.thoughtcrime.securesms.crypto.MasterSecret;
 import org.thoughtcrime.securesms.preferences.AdvancedPreferenceFragment;
@@ -38,6 +47,9 @@ import org.thoughtcrime.securesms.service.KeyCachingService;
 import org.thoughtcrime.securesms.util.DynamicLanguage;
 import org.thoughtcrime.securesms.util.DynamicTheme;
 import org.thoughtcrime.securesms.util.TextSecurePreferences;
+
+import java.io.UnsupportedEncodingException;
+import java.net.URLEncoder;
 
 /**
  * The Activity for application preference display and management.
@@ -123,6 +135,8 @@ public class ApplicationPreferencesActivity extends PassphraseRequiredActionBarA
   }
 
   public static class ApplicationPreferenceFragment extends PreferenceFragment {
+    private static boolean billingEnabled = false;
+
     @Override
     public void onCreate(Bundle icicle) {
       super.onCreate(icicle);
@@ -145,6 +159,41 @@ public class ApplicationPreferencesActivity extends PassphraseRequiredActionBarA
         .setOnPreferenceClickListener(new CategoryClickListener(masterSecret, PREFERENCE_CATEGORY_ADVANCED));
       this.findPreference(PREFERENCE_CATEGORY_BILLING)
               .setOnPreferenceClickListener(new CategoryClickListener(masterSecret, PREFERENCE_CATEGORY_BILLING));
+
+      updateBillingStatus();
+    }
+
+    private void updateBillingStatus() {
+      RequestQueue queue = Volley.newRequestQueue(getActivity());
+
+      String url = null;
+
+      try {
+        url = BuildConfig.LEMR_BRIDGE_URL + "/billing/check/" + URLEncoder.encode(TextSecurePreferences.getLocalNumber(getActivity()), "UTF-8");
+      } catch (UnsupportedEncodingException uee) {
+        // ignore
+      }
+
+      StringRequest strRequest = new StringRequest(
+        Request.Method.GET,
+        url,
+        new Response.Listener<String>() {
+          @Override
+          public void onResponse(String response) {
+            Toast.makeText(getActivity(), "Got billing status: " + response, Toast.LENGTH_SHORT).show();
+            if (Boolean.valueOf(response)) {
+              billingEnabled = true;
+            }
+          }
+        }, new Response.ErrorListener() {
+          @Override
+          public void onErrorResponse(VolleyError error) {
+            Toast.makeText(getActivity(), "Failed trying to get billing status", Toast.LENGTH_SHORT).show();
+          }
+      });
+
+      // add the request to the queue.
+      queue.add(strRequest);
     }
 
     @Override
@@ -214,8 +263,17 @@ public class ApplicationPreferencesActivity extends PassphraseRequiredActionBarA
           fragment = new AdvancedPreferenceFragment();
           break;
         case PREFERENCE_CATEGORY_BILLING:
-          Intent billingIntent = new Intent(getActivity(), BillingSetupActivity.class);
-          startActivity(billingIntent);
+          if (billingEnabled) {
+            Intent billingIntent = new Intent(getActivity(), BillingSetupActivity.class);
+            startActivity(billingIntent);
+          } else {
+            AlertDialog.Builder ad = new AlertDialog.Builder(getActivity());
+            ad.setTitle("Billing Disabled");
+            ad.setMessage("Your account does not support billing features.");
+            ad.setCancelable(false);
+            ad.setPositiveButton(android.R.string.ok, null);
+            ad.show();
+          }
           break;
         default:
           throw new AssertionError();
