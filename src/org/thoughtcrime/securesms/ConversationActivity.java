@@ -41,6 +41,7 @@ import android.support.annotation.NonNull;
 import android.support.v4.view.MenuItemCompat;
 import android.support.v4.view.WindowCompat;
 import android.support.v7.app.AlertDialog;
+import android.support.v7.widget.PopupMenu;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.util.Log;
@@ -62,6 +63,13 @@ import android.widget.Toast;
 
 import com.google.android.gms.location.places.ui.PlacePicker;
 import com.google.protobuf.ByteString;
+import com.stripe.android.Stripe;
+import com.stripe.android.TokenCallback;
+import com.stripe.android.model.Card;
+import com.stripe.android.model.Token;
+import com.stripe.exception.AuthenticationException;
+import com.stripe.model.Product;
+import com.stripe.model.ProductCollection;
 
 import org.thoughtcrime.redphone.RedPhone;
 import org.thoughtcrime.redphone.RedPhoneService;
@@ -114,6 +122,7 @@ import org.thoughtcrime.securesms.mms.SlideDeck;
 import org.thoughtcrime.securesms.notifications.MarkReadReceiver;
 import org.thoughtcrime.securesms.notifications.MessageNotifier;
 import org.thoughtcrime.securesms.providers.PersistentBlobProvider;
+import org.thoughtcrime.securesms.push.TextSecureCommunicationFactory;
 import org.thoughtcrime.securesms.recipients.Recipient;
 import org.thoughtcrime.securesms.recipients.RecipientFactory;
 import org.thoughtcrime.securesms.recipients.RecipientFormattingException;
@@ -140,8 +149,11 @@ import org.thoughtcrime.securesms.util.ViewUtil;
 import org.thoughtcrime.securesms.util.concurrent.AssertedSuccessListener;
 import org.thoughtcrime.securesms.util.concurrent.ListenableFuture;
 import org.thoughtcrime.securesms.util.concurrent.SettableFuture;
+import org.thoughtcrime.securesms.util.task.ProgressDialogAsyncTask;
 import org.whispersystems.libsignal.InvalidMessageException;
 import org.whispersystems.libsignal.util.guava.Optional;
+import org.whispersystems.signalservice.api.SignalServiceBillingManager;
+import org.whispersystems.signalservice.api.util.InvalidNumberException;
 
 import java.io.IOException;
 import java.security.NoSuchAlgorithmException;
@@ -168,7 +180,8 @@ public class ConversationActivity extends PassphraseRequiredActionBarActivity
                RecipientsModifiedListener,
                OnKeyboardShownListener,
                AttachmentDrawerListener,
-               InputPanel.Listener
+               InputPanel.Listener,
+               PopupMenu.OnMenuItemClickListener
 {
   private static final String TAG = ConversationActivity.class.getSimpleName();
 
@@ -220,6 +233,9 @@ public class ConversationActivity extends PassphraseRequiredActionBarActivity
   private boolean    isSecureVoice;
   private boolean    isMmsEnabled = true;
 
+  private Menu optionsMenu;
+  private ProductCollection products;
+
   private DynamicTheme    dynamicTheme    = new DynamicTheme();
   private DynamicLanguage dynamicLanguage = new DynamicLanguage();
 
@@ -250,6 +266,7 @@ public class ConversationActivity extends PassphraseRequiredActionBarActivity
         initializeDraft();
       }
     });
+    initializeBilling();
   }
 
   @Override
@@ -393,7 +410,8 @@ public class ConversationActivity extends PassphraseRequiredActionBarActivity
   }
 
   @Override
-  public boolean onPrepareOptionsMenu(Menu menu) {
+  public boolean onPrepareOptionsMenu(final Menu menu) {
+    optionsMenu = menu;
     MenuInflater inflater = this.getMenuInflater();
     menu.clear();
 
@@ -418,8 +436,9 @@ public class ConversationActivity extends PassphraseRequiredActionBarActivity
     }
 
     if (isSingleConversation()) {
-      if (isSecureVoice) inflater.inflate(R.menu.conversation_callable_secure, menu);
-      else               inflater.inflate(R.menu.conversation_callable_insecure, menu);
+      if (products != null && products.getData() != null && !products.getData().isEmpty()) {
+        inflater.inflate(R.menu.conversation_products, menu);
+      }
     } else if (isGroupConversation()) {
       inflater.inflate(R.menu.conversation_group_options, menu);
 
@@ -458,6 +477,7 @@ public class ConversationActivity extends PassphraseRequiredActionBarActivity
   public boolean onOptionsItemSelected(MenuItem item) {
     super.onOptionsItemSelected(item);
     switch (item.getItemId()) {
+    case R.id.menu_products:                  handleProductMenuClicked();                          return true;
     case R.id.menu_call_secure:
     case R.id.menu_call_insecure:             handleDial(getRecipients().getPrimaryRecipient()); return true;
     case R.id.menu_add_attachment:            handleAddAttachment();                             return true;
@@ -748,6 +768,117 @@ public class ConversationActivity extends PassphraseRequiredActionBarActivity
       }
     }
   }
+
+  private void handleProductMenuClicked() {
+    if (products != null && products.getData() != null && !products.getData().isEmpty()) {
+      PopupMenu popup = new PopupMenu(this, findViewById(R.id.menu_products));
+
+      int index = 0;
+      for (Product product : products.getData()) {
+        // TODO: this will fail with zero SKUs and will always take the first when multiple
+        double price = product.getSkus().getData().get(0).getPrice() / 100;
+        String priceString = String.format("$ %.2f", price);
+        popup.getMenu().add(0, index++, Menu.NONE, product.getName() + " | " + priceString);
+      }
+
+      popup.setOnMenuItemClickListener(this);
+      popup.show();
+    } else {
+      AlertDialog alertDialog = new AlertDialog.Builder(this).create();
+      alertDialog.setTitle(getString(R.string.ConversationActivity__billing__products_not_available_title));
+      alertDialog.setMessage(getString(R.string.ConversationActivity__billing__products_not_available_content));
+      alertDialog.setButton(AlertDialog.BUTTON_NEUTRAL, "OK",
+              new DialogInterface.OnClickListener() {
+                public void onClick(DialogInterface dialog, int which) {
+                  dialog.dismiss();
+                }
+              });
+      alertDialog.show();
+    }
+  }
+
+  @Override
+  public boolean onMenuItemClick(final MenuItem item) {
+    final Product selectedProduct = products.getData().get(item.getItemId());
+//    Toast.makeText(this, "Product " + selectedProduct.getName() + " clicked!", Toast.LENGTH_SHORT).show();
+
+    Card card = new Card("4242424242424242", 12, 2017, "123");
+
+    try {
+      Stripe stripe = new Stripe(BuildConfig.STRIPE_PK);
+      stripe.createToken(
+              card,
+              new TokenCallback() {
+                public void onSuccess(final Token token) {
+                  new ProgressDialogAsyncTask<Product, Void, Integer>(
+                          ConversationActivity.this,
+                          getString(R.string.ConversationActivity__billing__processing_payment_title),
+                          getString(R.string.ConversationActivity__billing__processing_payment_content)) {
+                    private static final int SUCCESS        = 0;
+                    private static final int NETWORK_ERROR  = 1;
+                    private static final int INTERNAL_ERROR  = 2;
+
+                    @Override
+                    protected Integer doInBackground(Product... params) {
+                      try {
+                        Context context = ConversationActivity.this;
+                        Product product = params[0];
+
+                        SignalServiceBillingManager billingManager = TextSecureCommunicationFactory.createBillingManager(context);
+
+                        String sellerNumber = Util.canonicalizeNumber(ConversationActivity.this, recipients.getPrimaryRecipient().getNumber());
+                        String productId = product.getId();
+
+                        // TODO: this assumes only one SKU for each product
+                        String skuId = product.getSkus().getData().get(0).getId();
+
+                        // TODO: ignore the return value? or do something with it?
+                        billingManager.performCharge(productId, skuId, token.getId(), sellerNumber);
+
+                        return SUCCESS;
+                      } catch (InvalidNumberException ine) {
+                        Log.w(TAG, ine);
+                        return INTERNAL_ERROR;
+                      } catch (IOException e) {
+                        Log.w(TAG, e);
+                        return NETWORK_ERROR;
+                      }
+                    }
+
+                    @Override
+                    protected void onPostExecute(Integer result) {
+                      super.onPostExecute(result);
+
+                      Context context = ConversationActivity.this;
+
+                      switch (result) {
+                        case SUCCESS:
+                          Toast.makeText(context, getString(R.string.ConversationActivity__billing__payment_success), Toast.LENGTH_SHORT).show();
+                          return;
+                        case NETWORK_ERROR:
+                          Toast.makeText(context, R.string.DeviceProvisioningActivity_content_progress_network_error, Toast.LENGTH_LONG).show();
+                          break;
+                        case INTERNAL_ERROR:
+                          Toast.makeText(context, getString(R.string.ConversationActivity__billing__payment_error), Toast.LENGTH_LONG).show();
+                          break;
+                      }
+                    }
+
+                  }.execute(selectedProduct);
+                }
+
+                public void onError(Exception error) {
+                  Toast.makeText(ConversationActivity.this, error.getLocalizedMessage(), Toast.LENGTH_LONG).show();
+                }
+              }
+      );
+      return true;
+    } catch (AuthenticationException ae) {
+      // TODO: fail hard
+      return false;
+    }
+  }
+
 
   private void handleDisplayGroupRecipients() {
     new GroupMembersDialog(this, getRecipients()).display();
@@ -1119,6 +1250,42 @@ public class ConversationActivity extends PassphraseRequiredActionBarActivity
                      KeyCachingService.KEY_PERMISSION, null);
 
     registerReceiver(recipientsStaleReceiver, staleFilter);
+  }
+
+  private void initializeBilling() {
+    new AsyncTask<Void, Void, ProductCollection>() {
+      @Override
+      protected ProductCollection doInBackground(Void... params) {
+        SignalServiceBillingManager billingManager = TextSecureCommunicationFactory.createBillingManager(ConversationActivity.this);
+
+        if (isSingleConversation()) {
+          try {
+            Recipient seller = recipients.getPrimaryRecipient();
+
+            if (seller != null) {
+              return billingManager.getProducts(Util.canonicalizeNumber(ConversationActivity.this, seller.getNumber()));
+            }
+          } catch (IOException | InvalidNumberException e) {
+            // ignore
+            // TODO: need to log if ignoring exception?
+            Log.e(TAG, "Failed while retrieving product list.", e);
+          }
+        }
+
+        return new ProductCollection();
+      }
+
+      @Override
+      protected void onPostExecute(ProductCollection products) {
+        ConversationActivity.this.products = products;
+
+        if (products != null && products.getData() != null && !products.getData().isEmpty()) {
+          if (ConversationActivity.this.optionsMenu != null) {
+            ConversationActivity.this.onPrepareOptionsMenu(ConversationActivity.this.optionsMenu);
+          }
+        }
+      }
+    }.execute();
   }
 
   //////// Helper Methods

@@ -6,6 +6,7 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import org.thoughtcrime.securesms.util.DateUtils;
+import org.whispersystems.signalservice.internal.push.BillingInfo;
 
 import java.util.Locale;
 

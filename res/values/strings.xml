@@ -41,6 +41,9 @@
     <string name="ApplicationPreferencesActivity_sms_mms_summary">SMS %1$s, MMS %2$s</string>
     <string name="ApplicationPreferencesActivity_privacy_summary">Passphrase %1$s, Screen security %2$s</string>
     <string name="ApplicationPreferencesActivity_appearance_summary">Theme %1$s, Language %2$s</string>
+    <string name="ApplicationPreferencesActivity_billing_status_check_failed">Failed trying to get billing status.</string>
+    <string name="ApplicationPreferencesActivity_billing_disabled_title">Billing Unavailable</string>
+    <string name="ApplicationPreferencesActivity_billing_disabled_content">Your account does not have billing services enabled.</string>
 
     <!-- AppProtectionPreferenceFragment -->
     <plurals name="AppProtectionPreferenceFragment_minutes">
@@ -146,6 +149,12 @@
     <string name="ConversationActivity_unable_to_record_audio">Unable to record audio!</string>
     <string name="ConversationActivity_error_sending_voice_message">Error sending voice message...</string>
     <string name="ConversationActivity_there_is_no_app_available_to_handle_this_link_on_your_device">There is no app available to handle this link on your device.</string>
+    <string name="ConversationActivity__billing__products_not_available_title">Not Available</string>
+    <string name="ConversationActivity__billing__products_not_available_content">This contact has no products available.</string>
+    <string name="ConversationActivity__billing__processing_payment_title">Processing Payment</string>
+    <string name="ConversationActivity__billing__processing_payment_content">Please wait while your payment is processed...</string>
+    <string name="ConversationActivity__billing__payment_success">Payment succeeded!</string>
+    <string name="ConversationActivity__billing__payment_error">An unexpected error occurred during payment. Please try again.</string>
 
     <!-- ConversationFragment -->
     <string name="ConversationFragment_message_details">Message details</string>
@@ -234,26 +243,38 @@
     <string name="DeviceListActivity_unlinking_device">Unlinking device...</string>
     <string name="DeviceListActivity_unlinking_device_no_ellipsis">Unlinking device</string>
     <string name="DeviceListActivity_network_failed">Network failed!</string>
-    
+
     <!-- DeviceListItem -->
     <string name="DeviceListItem_unnamed_device">Unnamed device</string>
     <string name="DeviceListItem_linked_s">Linked %s</string>
     <string name="DeviceListItem_last_active_s">Last active %s</string>
     <string name="DeviceListItem_today">Today</string>
 
-    <!-- BillingListActivity -->
-    <string name="BillingListActivity_unlink_s">Unlink \'%s\'?</string>
-    <string name="BillingListActivity_unlinking_billing_warning">By unlinking this billing integration, you will not longer be able to receive payments.</string>
-    <string name="BillingListActivity_network_connection_failed">Network connection failed...</string>
-    <string name="BillingListActivity_try_again">Try again</string>
-    <string name="BillingListActivity_unlinking_billing">Unlinking billing integration...</string>
-    <string name="BillingListActivity_network_failed">Network failed!</string>
-    <string name="BillingListActivity_unlinking_billing_no_ellipsis">Unlinking billing integration</string>
+    <!-- BillingSetupActivity -->
+    <string name="BillingSetupActivity_title">Billing</string>
+    <string name="BillingSetupActivity_summary">Connect Stripe account to accept payments</string>
+    <string name="BillingSetupActivity_connect_dialog_title">Connect Account</string>
+    <string name="BillingSetupActivity_connect_dialog_content">Connecting your Stripe account...</string>
+    <string name="BillingSetupActivity_connect_success">Successfully connected Stripe account!</string>
+
+    <!-- BillingListFragment -->
+    <string name="BillingListFragment_unlink_s">Unlink \'%s\'?</string>
+    <string name="BillingListFragment_unlinking_billing_warning">By revoking Stripe access, you will no longer be able to receive payments.</string>
+    <string name="BillingListFragment_network_connection_failed">Network connection failed...</string>
+    <string name="BillingListFragment_try_again">Try again</string>
+    <string name="BillingListFragment_unlinking_billing">Revoking Stripe access...</string>
+    <string name="BillingListFragment_network_failed">Network failed!</string>
+    <string name="BillingListFragment_unlinking_billing_no_ellipsis">Revoking Stripe access</string>
+    <string name="BillingListFragment_unlinking_billing_success">Stripe access revoked!</string>
 
     <!-- BillingListItem -->
     <string name="BillingListItem_linked_s">Linked %s</string>
     <string name="BillingListItem_user_id_s">User ID: %s</string>
     <string name="BillingListItem_today">Today</string>
+
+    <!-- BillingAddFragment -->
+    <string name="BillingAddFragment_loading">Loading...</string>
+    <string name="BillingAddFragment_please_wait">Please wait...</string>
 
     <!-- ShareActivity -->
     <string name="ShareActivity_share_with">Share with</string>
@@ -307,6 +328,11 @@
 
     <!-- GroupMembersDialog -->
     <string name="GroupMembersDialog_me">Me</string>
+
+    <!-- GroupMemberOptionsDialog -->
+    <string name="GroupMemberOptionsDialog_view_contact">View Contact</string>
+    <string name="GroupMemberOptionsDialog_add_contact">Add Contact</string>
+    <string name="GroupMemberOptionsDialog_send_message">Send Message</string>
 
     <!-- ImportExportActivity -->
     <string name="ImportExportActivity_import">Import</string>
@@ -1195,6 +1221,9 @@
     <string name="conversation__menu_delete_thread">Delete conversation</string>
     <string name="conversation__menu_view_media">All images</string>
     <string name="conversation__menu_conversation_settings">Conversation settings</string>
+
+    <!-- conversation_products -->
+    <string name="conversation_products__menu_title">Products</string>
 
     <!-- conversation_popup -->
     <string name="conversation_popup__menu_expand_popup">Expand popup</string>

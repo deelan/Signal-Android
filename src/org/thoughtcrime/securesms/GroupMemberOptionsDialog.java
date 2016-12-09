@@ -34,12 +34,12 @@ public class GroupMemberOptionsDialog {
 
         MemberOnClickListener mocl = new MemberOnClickListener(this.context, recipient);
         if (recipient.getContactUri() != null) {
-            builder.setNegativeButton("View Contact", mocl);
+            builder.setNegativeButton(context.getString(R.string.GroupMemberOptionsDialog_view_contact), mocl);
         } else {
-            builder.setNegativeButton("Add Contact", mocl);
+            builder.setNegativeButton(context.getString(R.string.GroupMemberOptionsDialog_add_contact), mocl);
         }
 
-        builder.setPositiveButton("Send Message", mocl);
+        builder.setPositiveButton(context.getString(R.string.GroupMemberOptionsDialog_send_message), mocl);
         builder.show();
     }
 

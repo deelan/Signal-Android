@@ -5,6 +5,7 @@ import android.content.Context;
 import org.thoughtcrime.securesms.BuildConfig;
 import org.thoughtcrime.securesms.util.TextSecurePreferences;
 import org.whispersystems.signalservice.api.SignalServiceAccountManager;
+import org.whispersystems.signalservice.api.SignalServiceBillingManager;
 
 public class TextSecureCommunicationFactory {
 
@@ -21,4 +22,11 @@ public class TextSecureCommunicationFactory {
                                            number, password, BuildConfig.USER_AGENT);
   }
 
+  public static SignalServiceBillingManager createBillingManager(Context context) {
+    return new SignalServiceBillingManager(BuildConfig.TEXTSECURE_URL,
+                                           new TextSecurePushTrustStore(context),
+                                           TextSecurePreferences.getLocalNumber(context),
+                                           TextSecurePreferences.getPushServerPassword(context),
+                                           BuildConfig.USER_AGENT);
+  }
 }

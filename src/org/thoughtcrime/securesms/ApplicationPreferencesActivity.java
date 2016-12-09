@@ -27,6 +27,7 @@ import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v4.preference.PreferenceFragment;
 import android.support.v7.app.AlertDialog;
+import android.util.Log;
 import android.widget.Toast;
 
 import com.android.volley.Request;
@@ -180,15 +181,13 @@ public class ApplicationPreferencesActivity extends PassphraseRequiredActionBarA
         new Response.Listener<String>() {
           @Override
           public void onResponse(String response) {
-            Toast.makeText(getActivity(), "Got billing status: " + response, Toast.LENGTH_SHORT).show();
-            if (Boolean.valueOf(response)) {
-              billingEnabled = true;
-            }
+            billingEnabled = Boolean.valueOf(response);
           }
         }, new Response.ErrorListener() {
           @Override
           public void onErrorResponse(VolleyError error) {
-            Toast.makeText(getActivity(), "Failed trying to get billing status", Toast.LENGTH_SHORT).show();
+            Log.e(TAG, "Failed trying to get billing status", error);
+            Toast.makeText(getActivity(), getString(R.string.ApplicationPreferencesActivity_billing_status_check_failed), Toast.LENGTH_SHORT).show();
           }
       });
 
@@ -268,8 +267,8 @@ public class ApplicationPreferencesActivity extends PassphraseRequiredActionBarA
             startActivity(billingIntent);
           } else {
             AlertDialog.Builder ad = new AlertDialog.Builder(getActivity());
-            ad.setTitle("Billing Disabled");
-            ad.setMessage("Your account does not support billing features.");
+            ad.setTitle(getString(R.string.ApplicationPreferencesActivity_billing_disabled_title));
+            ad.setMessage(getString(R.string.ApplicationPreferencesActivity_billing_disabled_content));
             ad.setCancelable(false);
             ad.setPositiveButton(android.R.string.ok, null);
             ad.show();

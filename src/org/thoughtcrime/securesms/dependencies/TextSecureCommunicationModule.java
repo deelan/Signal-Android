@@ -2,6 +2,7 @@ package org.thoughtcrime.securesms.dependencies;
 
 import android.content.Context;
 
+import org.thoughtcrime.securesms.BillingListFragment;
 import org.thoughtcrime.securesms.BuildConfig;
 import org.thoughtcrime.securesms.DeviceListFragment;
 import org.thoughtcrime.securesms.crypto.storage.SignalProtocolStoreImpl;
@@ -26,9 +27,11 @@ import org.thoughtcrime.securesms.service.MessageRetrievalService;
 import org.thoughtcrime.securesms.util.TextSecurePreferences;
 import org.whispersystems.libsignal.util.guava.Optional;
 import org.whispersystems.signalservice.api.SignalServiceAccountManager;
+import org.whispersystems.signalservice.api.SignalServiceBillingManager;
 import org.whispersystems.signalservice.api.SignalServiceMessageReceiver;
 import org.whispersystems.signalservice.api.SignalServiceMessageSender;
 import org.whispersystems.signalservice.api.util.CredentialsProvider;
+import org.whispersystems.signalservice.internal.util.StaticCredentialsProvider;
 
 import dagger.Module;
 import dagger.Provides;
@@ -49,7 +52,8 @@ import dagger.Provides;
                                      MultiDeviceBlockedUpdateJob.class,
                                      DeviceListFragment.class,
                                      RefreshAttributesJob.class,
-                                     GcmRefreshJob.class})
+                                     GcmRefreshJob.class,
+                                     BillingListFragment.class})
 public class TextSecureCommunicationModule {
 
   private final Context context;
@@ -86,6 +90,15 @@ public class TextSecureCommunicationModule {
                                          new TextSecurePushTrustStore(context),
                                          new DynamicCredentialsProvider(context),
                                          BuildConfig.USER_AGENT);
+  }
+
+  @Provides
+  SignalServiceBillingManager provideSignalBillingManager() {
+    return new SignalServiceBillingManager(BuildConfig.TEXTSECURE_URL,
+                                        new TextSecurePushTrustStore(context),
+                                        TextSecurePreferences.getLocalNumber(context),
+                                        TextSecurePreferences.getPushServerPassword(context),
+                                        BuildConfig.USER_AGENT);
   }
 
   public static interface TextSecureMessageSenderFactory {

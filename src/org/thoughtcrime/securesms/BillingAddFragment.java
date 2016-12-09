@@ -43,7 +43,8 @@ public class BillingAddFragment extends Fragment {
                     return;
                 }
 
-                String placeholder = "<html><body style='background-color: black; color: white; text-align: center; margin-top: 100px;'>Please wait...</body></html>";
+                String style = "style='background-color: #2090EA; color: white; text-align: center; margin-top: 100px;'";
+                String placeholder = String.format("<html><body %s>%s</body></html>", style, getString(R.string.BillingAddFragment_please_wait));
                 view.loadData(placeholder, "text/html", null);
 
                 int index = url.indexOf("?");

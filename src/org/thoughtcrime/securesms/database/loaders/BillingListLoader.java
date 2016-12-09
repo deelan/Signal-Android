@@ -4,9 +4,9 @@ import android.content.Context;
 
 import com.google.gson.Gson;
 
-import org.thoughtcrime.securesms.BillingInfo;
 import org.thoughtcrime.securesms.util.AsyncLoader;
 import org.thoughtcrime.securesms.util.TextSecurePreferences;
+import org.whispersystems.signalservice.internal.push.BillingInfo;
 
 import java.util.ArrayList;
 import java.util.List;
