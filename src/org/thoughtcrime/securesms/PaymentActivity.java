@@ -7,10 +7,10 @@ import android.widget.TextView;
 
 import org.thoughtcrime.securesms.components.CreditCardView;
 import org.thoughtcrime.securesms.crypto.MasterSecret;
-import org.thoughtcrime.securesms.payment.PaymentController;
 import org.thoughtcrime.securesms.payment.CardInformationReader;
 import org.thoughtcrime.securesms.payment.CardValidationController;
 import org.thoughtcrime.securesms.payment.MessageDialogHandler;
+import org.thoughtcrime.securesms.payment.PaymentController;
 import org.thoughtcrime.securesms.payment.ProgressDialogController;
 import org.thoughtcrime.securesms.util.DynamicLanguage;
 import org.thoughtcrime.securesms.util.DynamicTheme;
@@ -43,13 +43,15 @@ public class PaymentActivity extends PassphraseRequiredActionBarActivity {
         String productId = getIntent().getStringExtra("PRODUCT_ID");
         String skuId = getIntent().getStringExtra("SKU_ID");
 
-        initializeViews();
+        Button payButton = (Button) findViewById(R.id.save);
+        payButton.setEnabled(false);
 
-        Button saveButton = (Button) findViewById(R.id.save);
+        initializeViews(payButton);
+
         if (paymentController == null) {
             paymentController = new PaymentController(
                     this,
-                    saveButton,
+                    payButton,
                     cardInformationReader,
                     messageDialogHandler,
                     progressDialogController,
@@ -67,7 +69,7 @@ public class PaymentActivity extends PassphraseRequiredActionBarActivity {
         cardValidationController = null;
     }
 
-    private void initializeViews() {
+    private void initializeViews(Button payButton) {
         CreditCardView creditCardView = (CreditCardView) findViewById(R.id.credit_card);
         TextView validationErrorTextView = (TextView) findViewById(R.id.validation_error);
 
@@ -77,6 +79,6 @@ public class PaymentActivity extends PassphraseRequiredActionBarActivity {
 
         messageDialogHandler = new MessageDialogHandler(getSupportFragmentManager());
 
-        cardValidationController = new CardValidationController(this, creditCardView, validationErrorTextView, messageDialogHandler);
+        cardValidationController = new CardValidationController(this, creditCardView, payButton, validationErrorTextView, messageDialogHandler);
     }
 }

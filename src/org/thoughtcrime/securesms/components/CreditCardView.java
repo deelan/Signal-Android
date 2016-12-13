@@ -117,6 +117,7 @@ public class CreditCardView extends FrameLayout {
     private int mScrollViewWidth;
     private int mScrollToPosition;
     private boolean mCardNumberInView = true;
+    private int mColor;
 
     private Card mCard;
     private @ErrorCode int mError;
@@ -156,6 +157,8 @@ public class CreditCardView extends FrameLayout {
 
         mError = ERROR_NONE;
 
+        // grab the current text colour so that it can be set back during validation
+        mColor = mNumberEditText.getCurrentTextColor();
         mScrollView.setScrollingEnabled(false);
 
         mScrollViewWidth = (int) (getScreenWidth(getContext()) * SCROLL_VIEW_SIZE_WIDTH_RATIO);
@@ -196,6 +199,8 @@ public class CreditCardView extends FrameLayout {
                 }
                 String curString = mNumberEditText.getText().toString();
                 int curStringLength = curString.length();
+
+                mNumberEditText.setTextColor(mColor);
 
                 // reformat with spaces
                 // TODO : add formatting for non-16 digit cards
@@ -290,6 +295,8 @@ public class CreditCardView extends FrameLayout {
                     ignoreTextChanges = false;
                     return;
                 }
+
+                mExpiryDateEditText.setTextColor(mColor);
 
                 String monthStr = null;
                 String yearStr = null;
@@ -400,7 +407,7 @@ public class CreditCardView extends FrameLayout {
                     return;
                 }
 
-//                mCvcEditText.setTextColor(mColor);
+                mCvcEditText.setTextColor(mColor);
 
                 String curString = mCvcEditText.getText().toString();
                 int curStringLength = curString.length();
@@ -535,6 +542,7 @@ public class CreditCardView extends FrameLayout {
     }
 
     public void setTextColor(int color){
+        mColor = color;
         this.mNumberEditText.setTextColor(color);
         this.mExpiryDateEditText.setTextColor(color);
         this.mCvcEditText.setTextColor(color);

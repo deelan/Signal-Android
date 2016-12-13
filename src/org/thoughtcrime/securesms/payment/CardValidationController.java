@@ -4,6 +4,7 @@ import android.content.Context;
 import android.support.annotation.NonNull;
 import android.support.v7.app.AppCompatActivity;
 import android.view.inputmethod.InputMethodManager;
+import android.widget.Button;
 import android.widget.TextView;
 
 import com.stripe.android.model.Card;
@@ -26,6 +27,7 @@ public class CardValidationController {
     public CardValidationController(
             @NonNull final AppCompatActivity activity,
             @NonNull CreditCardView creditCardView,
+            @NonNull final Button payButton,
             @NonNull TextView validationErrorTextView,
             @NonNull MessageDialogHandler messageDialogHandler) {
         this.activity = activity;
@@ -39,6 +41,8 @@ public class CardValidationController {
                 mMessageDialogHandler.showMessage(R.string.PaymentActivity_validationSuccess, mCreditCardView.getContext().getString(R.string.PaymentActivity_cardValidatedMessage));
                 InputMethodManager imm = (InputMethodManager)activity.getSystemService(Context.INPUT_METHOD_SERVICE);
                 imm.hideSoftInputFromWindow(activity.getCurrentFocus().getWindowToken(), 0);
+
+                payButton.setEnabled(true);
                 // NOTE : could automatically save, or focus on other field, etc., at this point
                 //          as we have a validated Card object
             }
