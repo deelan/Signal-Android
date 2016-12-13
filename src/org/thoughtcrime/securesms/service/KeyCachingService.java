@@ -265,14 +265,12 @@ public class KeyCachingService extends Service {
   }
 
   private void foregroundServiceLegacy() {
-    Notification notification  = new Notification(R.drawable.icon_cached,
-                                                  getString(R.string.KeyCachingService_signal_passphrase_cached),
-                                                  System.currentTimeMillis());
-    notification.setLatestEventInfo(getApplicationContext(),
-                                    getString(R.string.KeyCachingService_passphrase_cached),
-                                    getString(R.string.KeyCachingService_signal_passphrase_cached),
-                                    buildLaunchIntent());
-    notification.tickerText = null;
+    Notification notification = new NotificationCompat.Builder(getApplicationContext())
+            .setSmallIcon(R.drawable.icon_cached)
+            .setContentTitle(getString(R.string.KeyCachingService_passphrase_cached))
+            .setContentText(getString(R.string.KeyCachingService_signal_passphrase_cached))
+            .setContentIntent(buildLaunchIntent())
+            .setWhen(System.currentTimeMillis()).build();
 
     stopForeground(true);
     startForeground(SERVICE_RUNNING_ID, notification);

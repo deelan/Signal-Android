@@ -63,11 +63,6 @@ import android.widget.Toast;
 
 import com.google.android.gms.location.places.ui.PlacePicker;
 import com.google.protobuf.ByteString;
-import com.stripe.android.Stripe;
-import com.stripe.android.TokenCallback;
-import com.stripe.android.model.Card;
-import com.stripe.android.model.Token;
-import com.stripe.exception.AuthenticationException;
 import com.stripe.model.Product;
 import com.stripe.model.ProductCollection;
 
@@ -149,7 +144,6 @@ import org.thoughtcrime.securesms.util.ViewUtil;
 import org.thoughtcrime.securesms.util.concurrent.AssertedSuccessListener;
 import org.thoughtcrime.securesms.util.concurrent.ListenableFuture;
 import org.thoughtcrime.securesms.util.concurrent.SettableFuture;
-import org.thoughtcrime.securesms.util.task.ProgressDialogAsyncTask;
 import org.whispersystems.libsignal.InvalidMessageException;
 import org.whispersystems.libsignal.util.guava.Optional;
 import org.whispersystems.signalservice.api.SignalServiceBillingManager;
@@ -200,6 +194,7 @@ public class ConversationActivity extends PassphraseRequiredActionBarActivity
   private static final int ADD_CONTACT       = 7;
   private static final int PICK_LOCATION     = 8;
   private static final int PICK_GIF          = 9;
+  private static final int PAY_FEE           = 10;
 
   private   MasterSecret          masterSecret;
   protected ComposeText           composeText;
@@ -235,6 +230,7 @@ public class ConversationActivity extends PassphraseRequiredActionBarActivity
 
   private Menu optionsMenu;
   private ProductCollection products;
+  private Product selectedProduct;
 
   private DynamicTheme    dynamicTheme    = new DynamicTheme();
   private DynamicLanguage dynamicLanguage = new DynamicLanguage();
@@ -284,17 +280,21 @@ public class ConversationActivity extends PassphraseRequiredActionBarActivity
       composeText.setText("");
     }
 
-    setIntent(intent);
-    initializeResources();
-    initializeSecurity(false, false).addListener(new AssertedSuccessListener<Boolean>() {
-      @Override
-      public void onSuccess(Boolean result) {
-        initializeDraft();
-      }
-    });
+    // TODO: this check is a hack to prevent this code from executing when returning from the PaymentActivity
+    // it should be fixed - specifically, checking for the presence of an extra parameter is flimsy
+    if (intent.getLongArrayExtra(RECIPIENTS_EXTRA) != null) {
+      setIntent(intent);
+      initializeResources();
+      initializeSecurity(false, false).addListener(new AssertedSuccessListener<Boolean>() {
+        @Override
+        public void onSuccess(Boolean result) {
+          initializeDraft();
+        }
+      });
 
-    if (fragment != null) {
-      fragment.onNewIntent();
+      if (fragment != null) {
+        fragment.onNewIntent();
+      }
     }
   }
 
@@ -391,6 +391,9 @@ public class ConversationActivity extends PassphraseRequiredActionBarActivity
       break;
     case PICK_GIF:
       setMedia(data.getData(), MediaType.GIF);
+      break;
+    case PAY_FEE:
+      handleChargeResult(resultCode);
       break;
     }
   }
@@ -799,86 +802,31 @@ public class ConversationActivity extends PassphraseRequiredActionBarActivity
 
   @Override
   public boolean onMenuItemClick(final MenuItem item) {
-    final Product selectedProduct = products.getData().get(item.getItemId());
-//    Toast.makeText(this, "Product " + selectedProduct.getName() + " clicked!", Toast.LENGTH_SHORT).show();
+    selectedProduct = products.getData().get(item.getItemId());
 
-    Card card = new Card("4242424242424242", 12, 2017, "123");
-
+    Intent paymentIntent = new Intent(this, PaymentActivity.class);
+    String sellerNumber = null;
     try {
-      Stripe stripe = new Stripe(BuildConfig.STRIPE_PK);
-      stripe.createToken(
-              card,
-              new TokenCallback() {
-                public void onSuccess(final Token token) {
-                  new ProgressDialogAsyncTask<Product, Void, Integer>(
-                          ConversationActivity.this,
-                          getString(R.string.ConversationActivity__billing__processing_payment_title),
-                          getString(R.string.ConversationActivity__billing__processing_payment_content)) {
-                    private static final int SUCCESS        = 0;
-                    private static final int NETWORK_ERROR  = 1;
-                    private static final int INTERNAL_ERROR  = 2;
-
-                    @Override
-                    protected Integer doInBackground(Product... params) {
-                      try {
-                        Context context = ConversationActivity.this;
-                        Product product = params[0];
-
-                        SignalServiceBillingManager billingManager = TextSecureCommunicationFactory.createBillingManager(context);
-
-                        String sellerNumber = Util.canonicalizeNumber(ConversationActivity.this, recipients.getPrimaryRecipient().getNumber());
-                        String productId = product.getId();
-
-                        // TODO: this assumes only one SKU for each product
-                        String skuId = product.getSkus().getData().get(0).getId();
-
-                        // TODO: ignore the return value? or do something with it?
-                        billingManager.performCharge(productId, skuId, token.getId(), sellerNumber);
-
-                        return SUCCESS;
-                      } catch (InvalidNumberException ine) {
-                        Log.w(TAG, ine);
-                        return INTERNAL_ERROR;
-                      } catch (IOException e) {
-                        Log.w(TAG, e);
-                        return NETWORK_ERROR;
-                      }
-                    }
-
-                    @Override
-                    protected void onPostExecute(Integer result) {
-                      super.onPostExecute(result);
-
-                      Context context = ConversationActivity.this;
-
-                      switch (result) {
-                        case SUCCESS:
-                          Toast.makeText(context, getString(R.string.ConversationActivity__billing__payment_success), Toast.LENGTH_SHORT).show();
-                          return;
-                        case NETWORK_ERROR:
-                          Toast.makeText(context, R.string.DeviceProvisioningActivity_content_progress_network_error, Toast.LENGTH_LONG).show();
-                          break;
-                        case INTERNAL_ERROR:
-                          Toast.makeText(context, getString(R.string.ConversationActivity__billing__payment_error), Toast.LENGTH_LONG).show();
-                          break;
-                      }
-                    }
-
-                  }.execute(selectedProduct);
-                }
-
-                public void onError(Exception error) {
-                  Toast.makeText(ConversationActivity.this, error.getLocalizedMessage(), Toast.LENGTH_LONG).show();
-                }
-              }
-      );
-      return true;
-    } catch (AuthenticationException ae) {
-      // TODO: fail hard
-      return false;
+      sellerNumber = Util.canonicalizeNumber(this, recipients.getPrimaryRecipient().getNumber());
+    } catch (InvalidNumberException ine) {
+      // ignore
     }
+
+    if (sellerNumber != null) {
+      paymentIntent.putExtra("SELLER_NUMBER", sellerNumber);
+      paymentIntent.putExtra("PRODUCT_ID", selectedProduct.getId());
+
+      // TODO: this assumes only one SKU for each product
+      paymentIntent.putExtra("SKU_ID", selectedProduct.getSkus().getData().get(0).getId());
+      startActivityForResult(paymentIntent, PAY_FEE);
+    }
+
+    return true;
   }
 
+  public void handleChargeResult(final int resultCode) {
+    selectedProduct = null;
+  }
 
   private void handleDisplayGroupRecipients() {
     new GroupMembersDialog(this, getRecipients()).display();

@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:paddingLeft="8dp"
+    android:paddingStart="8dp"
+    android:paddingRight="8dp"
+    android:paddingEnd="8dp"
+    android:gravity="center_horizontal"
+    android:orientation="vertical">
+
+    <TextView android:id="@+id/payment_form_title"
+              android:text="@string/PaymentActivity_card"
+              style="@style/Header" />
+
+    <org.thoughtcrime.securesms.components.CreditCardView
+        android:id="@+id/credit_card"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="12dp"
+        android:layout_marginLeft="12dp"
+        android:layout_marginEnd="42dp"
+        android:layout_marginRight="42dp"/>
+
+    <TextView
+        android:id="@+id/validation_error"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content" />
+
+    <Button
+        android:id="@+id/save"
+        android:text="@string/PaymentActivity_pay"
+        style="@style/PayNow"/>
+
+</LinearLayout>

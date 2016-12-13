@@ -212,6 +212,10 @@
                 android:value="org.thoughtcrime.securesms.ConversationListActivity" />
     </activity>
 
+    <activity android:name=".PaymentActivity"
+              android:windowSoftInputMode="stateUnchanged"
+              android:parentActivityName=".ConversationActivity"/>
+
     <activity android:name=".ConversationPopupActivity"
               android:windowSoftInputMode="stateVisible"
               android:launchMode="singleTask"

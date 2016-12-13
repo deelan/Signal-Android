@@ -472,6 +472,27 @@
     <!-- PlayServicesProblemFragment -->
     <string name="PlayServicesProblemFragment_the_version_of_google_play_services_you_have_installed_is_not_functioning">The version of Google Play Services you have installed is not functioning correctly.  Please reinstall Google Play Services and try again.</string>
 
+    <!-- PaymentActivity -->
+    <string name="PaymentActivity_title">Payment Details</string>
+    <string name="PaymentActivity_card">Card</string>
+
+    <string name="PaymentActivity_endingIn">Card ending in </string>
+    <string name="PaymentActivity_validationErrors">Validation Errors</string>
+    <string name="PaymentActivity_validationSuccess">Validation Success</string>
+    <string name="PaymentActivity_cardValidatedMessage">Card validated. Please press \'Pay Now\'</string>
+
+    <string name="PaymentActivity_cardNumber">Card Number</string>
+    <string name="PaymentActivity_pay">Pay Now</string>
+    <string name="PaymentActivity_cvc">CVC</string>
+    <string name="PaymentActivity_expiry_hint">MM/YY</string>
+    <string name="PaymentActivity_card_number_hint">1234 5678 1234 5678</string>
+
+    <string name="PaymentActivity_cardErrorNumber">The card number that you entered is invalid</string>
+    <string name="PaymentActivity_cardErrorExpDate">The expiration date that you entered is invalid</string>
+    <string name="PaymentActivity_cardErrorCvc">The CVC code that you entered is invalid</string>
+    <string name="PaymentActivity_cardErrorUnknown">The card details that you entered are invalid</string>
+    <string name="PaymentActivity_network_error">Network error.</string>
+
     <!-- RatingManager -->
     <string name="RatingManager_rate_this_app">Rate this app</string>
     <string name="RatingManager_if_you_enjoy_using_this_app_please_take_a_moment">If you enjoy using this app, please take a moment to help us by rating it.</string>
