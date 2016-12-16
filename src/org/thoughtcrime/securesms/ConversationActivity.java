@@ -41,7 +41,6 @@ import android.support.annotation.NonNull;
 import android.support.v4.view.MenuItemCompat;
 import android.support.v4.view.WindowCompat;
 import android.support.v7.app.AlertDialog;
-import android.support.v7.widget.PopupMenu;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.util.Log;
@@ -62,9 +61,16 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.google.android.gms.location.places.ui.PlacePicker;
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+import com.google.gson.JsonDeserializationContext;
+import com.google.gson.JsonDeserializer;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonParseException;
 import com.google.protobuf.ByteString;
 import com.stripe.model.Product;
 import com.stripe.model.ProductCollection;
+import com.stripe.model.SKU;
 
 import org.thoughtcrime.redphone.RedPhone;
 import org.thoughtcrime.redphone.RedPhoneService;
@@ -116,6 +122,10 @@ import org.thoughtcrime.securesms.mms.Slide;
 import org.thoughtcrime.securesms.mms.SlideDeck;
 import org.thoughtcrime.securesms.notifications.MarkReadReceiver;
 import org.thoughtcrime.securesms.notifications.MessageNotifier;
+import org.thoughtcrime.securesms.payment.Payment;
+import org.thoughtcrime.securesms.payment.PaymentList;
+import org.thoughtcrime.securesms.payment.PaymentListActivity;
+import org.thoughtcrime.securesms.payment.PaymentListFragment;
 import org.thoughtcrime.securesms.providers.PersistentBlobProvider;
 import org.thoughtcrime.securesms.push.TextSecureCommunicationFactory;
 import org.thoughtcrime.securesms.recipients.Recipient;
@@ -152,7 +162,12 @@ import org.whispersystems.signalservice.api.util.InvalidNumberException;
 import java.io.IOException;
 import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.ExecutionException;
 
 import ws.com.google.android.mms.ContentType;
@@ -174,8 +189,7 @@ public class ConversationActivity extends PassphraseRequiredActionBarActivity
                RecipientsModifiedListener,
                OnKeyboardShownListener,
                AttachmentDrawerListener,
-               InputPanel.Listener,
-               PopupMenu.OnMenuItemClickListener
+               InputPanel.Listener
 {
   private static final String TAG = ConversationActivity.class.getSimpleName();
 
@@ -229,8 +243,11 @@ public class ConversationActivity extends PassphraseRequiredActionBarActivity
   private boolean    isMmsEnabled = true;
 
   private Menu optionsMenu;
-  private ProductCollection products;
-  private Product selectedProduct;
+  private ArrayList<org.thoughtcrime.securesms.payment.Product> products;
+  private org.thoughtcrime.securesms.payment.Product selectedProduct;
+  private ArrayList<Payment> payments;
+
+  private PaymentListFragment paymentListFragment;
 
   private DynamicTheme    dynamicTheme    = new DynamicTheme();
   private DynamicLanguage dynamicLanguage = new DynamicLanguage();
@@ -392,9 +409,6 @@ public class ConversationActivity extends PassphraseRequiredActionBarActivity
     case PICK_GIF:
       setMedia(data.getData(), MediaType.GIF);
       break;
-    case PAY_FEE:
-      handleChargeResult(resultCode);
-      break;
     }
   }
 
@@ -439,8 +453,12 @@ public class ConversationActivity extends PassphraseRequiredActionBarActivity
     }
 
     if (isSingleConversation()) {
-      if (products != null && products.getData() != null && !products.getData().isEmpty()) {
+      if (products != null && !products.isEmpty()) {
         inflater.inflate(R.menu.conversation_products, menu);
+      }
+
+      if (payments != null && !payments.isEmpty()) {
+        inflater.inflate(R.menu.conversation_payments, menu);
       }
     } else if (isGroupConversation()) {
       inflater.inflate(R.menu.conversation_group_options, menu);
@@ -480,7 +498,8 @@ public class ConversationActivity extends PassphraseRequiredActionBarActivity
   public boolean onOptionsItemSelected(MenuItem item) {
     super.onOptionsItemSelected(item);
     switch (item.getItemId()) {
-    case R.id.menu_products:                  handleProductMenuClicked();                          return true;
+    case R.id.menu_products:                  handleShowProducts();                              return true;
+    case R.id.menu_view_payments:             handleShowPayments();                              return true;
     case R.id.menu_call_secure:
     case R.id.menu_call_insecure:             handleDial(getRecipients().getPrimaryRecipient()); return true;
     case R.id.menu_add_attachment:            handleAddAttachment();                             return true;
@@ -772,60 +791,37 @@ public class ConversationActivity extends PassphraseRequiredActionBarActivity
     }
   }
 
-  private void handleProductMenuClicked() {
-    if (products != null && products.getData() != null && !products.getData().isEmpty()) {
-      PopupMenu popup = new PopupMenu(this, findViewById(R.id.menu_products));
+  private void handleShowProducts() {
+    if (products != null && !products.isEmpty()) {
+      Intent paymentListIntent = new Intent(this, PaymentListActivity.class);
 
-      int index = 0;
-      for (Product product : products.getData()) {
-        // TODO: this will fail with zero SKUs and will always take the first when multiple
-        double price = product.getSkus().getData().get(0).getPrice() / 100;
-        String priceString = String.format("$ %.2f", price);
-        popup.getMenu().add(0, index++, Menu.NONE, product.getName() + " | " + priceString);
+      paymentListIntent.putExtra("products", true);
+      paymentListIntent.putParcelableArrayListExtra("PRODUCTS", products);
+
+      String sellerNumber = null;
+      try {
+        sellerNumber = Util.canonicalizeNumber(this, recipients.getPrimaryRecipient().getNumber());
+      } catch (InvalidNumberException ine) {
+        // ignore
       }
 
-      popup.setOnMenuItemClickListener(this);
-      popup.show();
-    } else {
-      AlertDialog alertDialog = new AlertDialog.Builder(this).create();
-      alertDialog.setTitle(getString(R.string.ConversationActivity__billing__products_not_available_title));
-      alertDialog.setMessage(getString(R.string.ConversationActivity__billing__products_not_available_content));
-      alertDialog.setButton(AlertDialog.BUTTON_NEUTRAL, "OK",
-              new DialogInterface.OnClickListener() {
-                public void onClick(DialogInterface dialog, int which) {
-                  dialog.dismiss();
-                }
-              });
-      alertDialog.show();
+      if (sellerNumber != null) {
+        paymentListIntent.putExtra("SELLER_NUMBER", sellerNumber);
+      }
+
+      startActivity(paymentListIntent);
     }
   }
 
-  @Override
-  public boolean onMenuItemClick(final MenuItem item) {
-    selectedProduct = products.getData().get(item.getItemId());
+  private void handleShowPayments() {
+    if (payments != null && !payments.isEmpty()) {
+      Intent paymentListIntent = new Intent(this, PaymentListActivity.class);
 
-    Intent paymentIntent = new Intent(this, PaymentActivity.class);
-    String sellerNumber = null;
-    try {
-      sellerNumber = Util.canonicalizeNumber(this, recipients.getPrimaryRecipient().getNumber());
-    } catch (InvalidNumberException ine) {
-      // ignore
+      paymentListIntent.putExtra("payments", true);
+      paymentListIntent.putParcelableArrayListExtra("PAYMENTS", payments);
+
+      startActivity(paymentListIntent);
     }
-
-    if (sellerNumber != null) {
-      paymentIntent.putExtra("SELLER_NUMBER", sellerNumber);
-      paymentIntent.putExtra("PRODUCT_ID", selectedProduct.getId());
-
-      // TODO: this assumes only one SKU for each product
-      paymentIntent.putExtra("SKU_ID", selectedProduct.getSkus().getData().get(0).getId());
-      startActivityForResult(paymentIntent, PAY_FEE);
-    }
-
-    return true;
-  }
-
-  public void handleChargeResult(final int resultCode) {
-    selectedProduct = null;
   }
 
   private void handleDisplayGroupRecipients() {
@@ -1125,6 +1121,8 @@ public class ConversationActivity extends PassphraseRequiredActionBarActivity
       quickCameraToggle.setVisibility(View.GONE);
       quickCameraToggle.setEnabled(false);
     }
+
+    paymentListFragment = new PaymentListFragment();
   }
 
   protected void initializeActionBar() {
@@ -1201,33 +1199,73 @@ public class ConversationActivity extends PassphraseRequiredActionBarActivity
   }
 
   private void initializeBilling() {
-    new AsyncTask<Void, Void, ProductCollection>() {
+    new AsyncTask<Void, Void, Map<String, Object>>() {
       @Override
-      protected ProductCollection doInBackground(Void... params) {
+      protected Map<String, Object> doInBackground(Void... params) {
         SignalServiceBillingManager billingManager = TextSecureCommunicationFactory.createBillingManager(ConversationActivity.this);
 
         if (isSingleConversation()) {
           try {
-            Recipient seller = recipients.getPrimaryRecipient();
+            Recipient otherContact = recipients.getPrimaryRecipient();
 
-            if (seller != null) {
-              return billingManager.getProducts(Util.canonicalizeNumber(ConversationActivity.this, seller.getNumber()));
+            if (otherContact != null) {
+              String otherNumber = Util.canonicalizeNumber(ConversationActivity.this, otherContact.getNumber());
+              ProductCollection pc = billingManager.getProducts(otherNumber);
+              String paymentsString = billingManager.getPayments(otherNumber);
+
+              GsonBuilder builder = new GsonBuilder();
+
+              // Register an adapter to manage the date types as long values
+              builder.registerTypeAdapter(Date.class, new JsonDeserializer<Date>() {
+                public Date deserialize(JsonElement json, java.lang.reflect.Type typeOfT, JsonDeserializationContext context) throws JsonParseException {
+                  return new Date(json.getAsJsonPrimitive().getAsLong() * 1000);
+                }
+              });
+
+              Gson gson = builder.create();
+              List<Payment> payments = gson.fromJson(paymentsString, PaymentList.class).getPayments();
+
+              Map<String, Object> result = new HashMap<>();
+              result.put("products", pc);
+              result.put("payments", payments);
+
+              return result;
             }
           } catch (IOException | InvalidNumberException e) {
             // ignore
             // TODO: need to log if ignoring exception?
-            Log.e(TAG, "Failed while retrieving product list.", e);
+            Log.e(TAG, "Failed while retrieving product or payment list.", e);
           }
         }
 
-        return new ProductCollection();
+        return Collections.EMPTY_MAP;
       }
 
       @Override
-      protected void onPostExecute(ProductCollection products) {
-        ConversationActivity.this.products = products;
+      protected void onPostExecute(Map<String, Object> results) {
+        ProductCollection resultProducts = (ProductCollection)results.get("products");
 
-        if (products != null && products.getData() != null && !products.getData().isEmpty()) {
+        // convert the Stripe products to our internal version
+        ArrayList<org.thoughtcrime.securesms.payment.Product> products = new ArrayList<>();
+
+        if (resultProducts != null && resultProducts.getData() != null) {
+          for (Product product : resultProducts.getData()) {
+            for (SKU sku : product.getSkus().getData()) {
+              products.add(new org.thoughtcrime.securesms.payment.Product(
+                      product.getName(),
+                      product.getId(),
+                      sku.getId(),
+                      product.getDescription(),
+                      sku.getPrice()));
+            }
+          }
+        }
+
+        ConversationActivity.this.products = products;
+        ConversationActivity.this.payments = (ArrayList<Payment>)results.get("payments");
+
+        if ((products != null && !products.isEmpty())
+                || payments != null && !payments.isEmpty()) {
           if (ConversationActivity.this.optionsMenu != null) {
             ConversationActivity.this.onPrepareOptionsMenu(ConversationActivity.this.optionsMenu);
           }

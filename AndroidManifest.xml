@@ -212,7 +212,11 @@
                 android:value="org.thoughtcrime.securesms.ConversationListActivity" />
     </activity>
 
-    <activity android:name=".PaymentActivity"
+    <activity android:name=".payment.PaymentActivity"
+              android:windowSoftInputMode="stateUnchanged"
+              android:parentActivityName=".payment.ProductListActivity"/>
+
+    <activity android:name=".payment.PaymentListActivity"
               android:windowSoftInputMode="stateUnchanged"
               android:parentActivityName=".ConversationActivity"/>
 

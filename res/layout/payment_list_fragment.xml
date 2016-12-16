@@ -27,7 +27,7 @@
         android:gravity="center|center_vertical"
         android:textSize="20sp"
         android:visibility="gone"
-        android:text="@string/BillingListFragment_no_billing_integrations_added"
+        android:text="@string/PaymentListFragment_empty"
         android:paddingLeft="16dip"
         android:paddingRight="16dip"
         android:layout_weight="1"
@@ -41,18 +41,5 @@
         android:paddingLeft="16dip"
         android:paddingRight="16dip"
         tools:visibility="gone"/>
-
-    <com.melnykov.fab.FloatingActionButton
-        android:id="@+id/add_billing_integration"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_gravity="bottom|end"
-        android:layout_margin="16dp"
-        android:src="@drawable/ic_add_white_original_24dp"
-        android:focusable="true"
-        android:contentDescription="@string/BillingListFragment_add_new_billing_integration"
-        fab:fab_colorNormal="?fab_color"
-        fab:fab_colorPressed="@color/textsecure_primary_dark"
-        fab:fab_colorRipple="@color/textsecure_primary_dark" />
 
 </LinearLayout>

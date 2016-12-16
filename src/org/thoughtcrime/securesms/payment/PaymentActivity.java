@@ -1,17 +1,15 @@
-package org.thoughtcrime.securesms;
+package org.thoughtcrime.securesms.payment;
 
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.widget.Button;
 import android.widget.TextView;
 
+import org.thoughtcrime.securesms.BuildConfig;
+import org.thoughtcrime.securesms.PassphraseRequiredActionBarActivity;
+import org.thoughtcrime.securesms.R;
 import org.thoughtcrime.securesms.components.CreditCardView;
 import org.thoughtcrime.securesms.crypto.MasterSecret;
-import org.thoughtcrime.securesms.payment.CardInformationReader;
-import org.thoughtcrime.securesms.payment.CardValidationController;
-import org.thoughtcrime.securesms.payment.MessageDialogHandler;
-import org.thoughtcrime.securesms.payment.PaymentController;
-import org.thoughtcrime.securesms.payment.ProgressDialogController;
 import org.thoughtcrime.securesms.util.DynamicLanguage;
 import org.thoughtcrime.securesms.util.DynamicTheme;
 

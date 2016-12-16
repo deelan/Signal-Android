@@ -153,8 +153,6 @@
     <string name="ConversationActivity__billing__products_not_available_content">This contact has no products available.</string>
     <string name="ConversationActivity__billing__processing_payment_title">Processing Payment</string>
     <string name="ConversationActivity__billing__processing_payment_content">Please wait while your payment is processed...</string>
-    <string name="ConversationActivity__billing__payment_success">Payment succeeded!</string>
-    <string name="ConversationActivity__billing__payment_error">An unexpected error occurred during payment. Please try again.</string>
 
     <!-- ConversationFragment -->
     <string name="ConversationFragment_message_details">Message details</string>
@@ -266,6 +264,8 @@
     <string name="BillingListFragment_network_failed">Network failed!</string>
     <string name="BillingListFragment_unlinking_billing_no_ellipsis">Revoking Stripe access</string>
     <string name="BillingListFragment_unlinking_billing_success">Stripe access revoked!</string>
+    <string name="BillingListFragment_no_billing_integrations_added">No billing integrations added...</string>
+    <string name="BillingListFragment_add_new_billing_integration">Add new billing integration</string>
 
     <!-- BillingListItem -->
     <string name="BillingListItem_linked_s">Linked %s</string>
@@ -275,6 +275,18 @@
     <!-- BillingAddFragment -->
     <string name="BillingAddFragment_loading">Loading...</string>
     <string name="BillingAddFragment_please_wait">Please wait...</string>
+
+    <!-- ProductListFragment -->
+    <string name="ProductListFragment_empty">No products available...</string>
+
+    <!-- PaymentListFragment -->
+    <string name="PaymentListFragment_empty">No payments on record...</string>
+
+    <!-- PaymentListItem -->
+    <string name="PaymentListItem_paid_s">Paid on: %s</string>
+    <string name="PaymentListItem_description_s">Description: %s</string>
+    <string name="PaymentListItem_today">Today</string>
+    <string name="PaymentListItem_amount_s">Total: %s</string>
 
     <!-- ShareActivity -->
     <string name="ShareActivity_share_with">Share with</string>
@@ -492,6 +504,13 @@
     <string name="PaymentActivity_cardErrorCvc">The CVC code that you entered is invalid</string>
     <string name="PaymentActivity_cardErrorUnknown">The card details that you entered are invalid</string>
     <string name="PaymentActivity_network_error">Network error.</string>
+
+    <string name="PaymentActivity_payment_success">Payment succeeded!</string>
+    <string name="PaymentActivity_payment_error">An unexpected error occurred during payment. Please try again.</string>
+
+    <!-- PaymentListActivity -->
+    <string name="PaymentListActivity_payments_title">Payments</string>
+    <string name="PaymentListActivity_products_title">Products</string>
 
     <!-- RatingManager -->
     <string name="RatingManager_rate_this_app">Rate this app</string>
@@ -1187,6 +1206,10 @@
     <!-- conversation_callable_secure -->
     <string name="conversation_callable_secure__menu_call">Signal call</string>
 
+    <!-- conversation_billing -->
+    <string name="conversation_chargeable__menu_invoicing">Invoice Options</string>
+
+
     <!-- conversation_context -->
     <string name="conversation_context__menu_message_details">Message details</string>
     <string name="conversation_context__menu_copy_text">Copy text</string>
@@ -1245,6 +1268,9 @@
 
     <!-- conversation_products -->
     <string name="conversation_products__menu_title">Products</string>
+
+    <!-- conversation_billing -->
+    <string name="conversation_chargeable__menu_view_payments">View payments</string>
 
     <!-- conversation_popup -->
     <string name="conversation_popup__menu_expand_popup">Expand popup</string>
@@ -1333,7 +1359,6 @@
 
     <!-- transport_selection_list_item -->
     <string name="transport_selection_list_item__transport_icon">Transport icon</string>
-
 
     <!-- EOF -->
 

@@ -2,9 +2,11 @@ package org.thoughtcrime.securesms.payment;
 
 import android.app.Activity;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.AsyncTask;
 import android.support.annotation.NonNull;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.View;
@@ -106,21 +108,28 @@ public class PaymentController {
 
                                 Context context = activity;
 
+                                //TODO: handle error cases so that activity finishes
+
                                 switch (result) {
                                     case SUCCESS:
                                         progressDialogController.finishProgress();
 
-                                        Toast.makeText(context, R.string.ConversationActivity__billing__payment_success, Toast.LENGTH_SHORT).show();
+                                        AlertDialog.Builder builder = new AlertDialog.Builder(activity);
+                                        builder.setMessage(R.string.PaymentActivity_payment_success);
+                                        builder.setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
+                                            @Override
+                                            public void onClick(DialogInterface dialog, int which) {
+                                                finishActivity();
+                                            }
+                                        });
+                                        builder.show();
 
-                                        Intent resultIntent = new Intent();
-                                        activity.setResult(Activity.RESULT_OK, resultIntent);
-                                        activity.finish();
                                         return;
                                     case NETWORK_ERROR:
                                         Toast.makeText(context, R.string.PaymentActivity_network_error, Toast.LENGTH_LONG).show();
                                         break;
                                     case INTERNAL_ERROR:
-                                        Toast.makeText(context, R.string.ConversationActivity__billing__payment_error, Toast.LENGTH_LONG).show();
+                                        Toast.makeText(context, R.string.PaymentActivity_payment_error, Toast.LENGTH_LONG).show();
                                         break;
                                 }
                             }
@@ -132,5 +141,11 @@ public class PaymentController {
                         progressDialogController.finishProgress();
                     }
                 });
+    }
+
+    private void finishActivity() {
+        Intent resultIntent = new Intent();
+        activity.setResult(Activity.RESULT_OK, resultIntent);
+        activity.finish();
     }
 }

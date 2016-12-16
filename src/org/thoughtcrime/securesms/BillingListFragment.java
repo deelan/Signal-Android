@@ -56,9 +56,9 @@ public class BillingListFragment extends ListFragment
     }
 
     @Override
-    public void onAttach(Activity activity) {
-        super.onAttach(activity);
-        ApplicationContext.getInstance(activity).injectDependencies(this);
+    public void onAttach(Context context) {
+        super.onAttach(context);
+        ApplicationContext.getInstance(context).injectDependencies(this);
     }
 
     @Override
