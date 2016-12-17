@@ -40,6 +40,7 @@ public class PaymentActivity extends PassphraseRequiredActionBarActivity {
         String sellerNumber = getIntent().getStringExtra("SELLER_NUMBER");
         String productId = getIntent().getStringExtra("PRODUCT_ID");
         String skuId = getIntent().getStringExtra("SKU_ID");
+        String productName = getIntent().getStringExtra("PRODUCT_NAME");
 
         Button payButton = (Button) findViewById(R.id.save);
         payButton.setEnabled(false);
@@ -56,7 +57,8 @@ public class PaymentActivity extends PassphraseRequiredActionBarActivity {
                     BuildConfig.STRIPE_PK,
                     sellerNumber,
                     productId,
-                    skuId);
+                    skuId,
+                    productName);
         }
     }
 

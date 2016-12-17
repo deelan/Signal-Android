@@ -40,6 +40,7 @@ public class PaymentController {
     private String sellerNumber;
     private String productId;
     private String skuId;
+    private String productName;
 
     public PaymentController(
             @NonNull AppCompatActivity activity,
@@ -50,7 +51,8 @@ public class PaymentController {
             @NonNull String publishableKey,
             @NonNull String sellerNumber,
             @NonNull String productId,
-            @NonNull String skuId) {
+            @NonNull String skuId,
+            @NonNull String productName) {
         this.activity = activity;
         this.cardInformationReader = cardInformationReader;
         this.messageDialogHandler = messageDialogHandler;
@@ -59,6 +61,7 @@ public class PaymentController {
         this.sellerNumber = sellerNumber;
         this.productId = productId;
         this.skuId = skuId;
+        this.productName = productName;
 
         button.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -93,7 +96,7 @@ public class PaymentController {
                                     SignalServiceBillingManager billingManager = TextSecureCommunicationFactory.createBillingManager(context);
 
                                     // TODO: ignore the return value? or do something with it?
-                                    billingManager.performCharge(productId, skuId, token.getId(), sellerNumber);
+                                    billingManager.performCharge(productId, skuId, token.getId(), sellerNumber, productName);
 
                                     return SUCCESS;
                                 } catch (IOException e) {

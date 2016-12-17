@@ -284,7 +284,6 @@
 
     <!-- PaymentListItem -->
     <string name="PaymentListItem_paid_s">Paid on: %s</string>
-    <string name="PaymentListItem_description_s">Description: %s</string>
     <string name="PaymentListItem_today">Today</string>
     <string name="PaymentListItem_amount_s">Total: %s</string>
 

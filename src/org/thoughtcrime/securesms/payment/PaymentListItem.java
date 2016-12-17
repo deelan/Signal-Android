@@ -35,7 +35,7 @@ public class PaymentListItem extends LinearLayout {
 
     public void set(Payment payment, Locale locale) {
 
-        this.description.setText(getContext().getString(R.string.PaymentListItem_description_s, payment.getDescription()));
+        this.description.setText(payment.getDescription());
 
         this.created.setText(getContext().getString(R.string.PaymentListItem_paid_s,
                 DateUtils.getDayPrecisionTimeSpanString(getContext(), locale, payment.getCreated().getTime())));

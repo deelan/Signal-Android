@@ -74,6 +74,7 @@ public class ProductListFragment extends ListFragment implements ListView.OnItem
             paymentIntent.putExtra("SELLER_NUMBER", sellerNumber);
             paymentIntent.putExtra("PRODUCT_ID", product.getProductId());
             paymentIntent.putExtra("SKU_ID", product.getSkuId());
+            paymentIntent.putExtra("PRODUCT_NAME", product.getName());
             startActivityForResult(paymentIntent, PAYMENT);
         }
     }
