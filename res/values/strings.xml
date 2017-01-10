@@ -153,6 +153,7 @@
     <string name="ConversationActivity__billing__products_not_available_content">This contact has no products available.</string>
     <string name="ConversationActivity__billing__processing_payment_title">Processing Payment</string>
     <string name="ConversationActivity__billing__processing_payment_content">Please wait while your payment is processed...</string>
+    <string name="ConversationActivity_plan_description">Recurring payment for ongoing services.</string>
 
     <!-- ConversationFragment -->
     <string name="ConversationFragment_message_details">Message details</string>
@@ -507,7 +508,7 @@
     <string name="PaymentActivity_payment_success">Payment succeeded!</string>
     <string name="PaymentActivity_payment_error">An unexpected error occurred during payment. Please try again.</string>
 
-    <!-- PaymentListActivity -->
+    <!-- BillingListActivity -->
     <string name="PaymentListActivity_payments_title">Payments</string>
     <string name="PaymentListActivity_products_title">Products</string>
 

@@ -28,12 +28,11 @@ public class CardValidationController {
             @NonNull final AppCompatActivity activity,
             @NonNull CreditCardView creditCardView,
             @NonNull final Button payButton,
-            @NonNull TextView validationErrorTextView,
-            @NonNull MessageDialogHandler messageDialogHandler) {
+            @NonNull TextView validationErrorTextView) {
         this.activity = activity;
         mCreditCardView = creditCardView;
         mValidationErrorTextView = validationErrorTextView;
-        mMessageDialogHandler = messageDialogHandler;
+        mMessageDialogHandler = new MessageDialogHandler(activity.getSupportFragmentManager());
 
         creditCardView.setCallback(new CreditCardView.Callback() {
             @Override

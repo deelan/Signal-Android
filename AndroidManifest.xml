@@ -214,9 +214,9 @@
 
     <activity android:name=".payment.PaymentActivity"
               android:windowSoftInputMode="stateUnchanged"
-              android:parentActivityName=".payment.ProductListActivity"/>
+              android:parentActivityName=".payment.BillingListActivity"/>
 
-    <activity android:name=".payment.PaymentListActivity"
+    <activity android:name=".payment.BillingListActivity"
               android:windowSoftInputMode="stateUnchanged"
               android:parentActivityName=".ConversationActivity"/>
 

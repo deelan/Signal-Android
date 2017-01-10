@@ -6,8 +6,8 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.AsyncTask;
 import android.support.annotation.NonNull;
+import android.support.v4.app.FragmentActivity;
 import android.support.v7.app.AlertDialog;
-import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
@@ -32,7 +32,7 @@ public class PaymentController {
 
     private static final String TAG = PaymentController.class.getSimpleName();
 
-    private AppCompatActivity activity;
+    private FragmentActivity activity;
     private CardInformationReader cardInformationReader;
     private MessageDialogHandler messageDialogHandler;
     private ProgressDialogController progressDialogController;
@@ -43,21 +43,19 @@ public class PaymentController {
     private String productName;
 
     public PaymentController(
-            @NonNull AppCompatActivity activity,
+            @NonNull FragmentActivity activity,
             @NonNull Button button,
             @NonNull CardInformationReader cardInformationReader,
-            @NonNull MessageDialogHandler messageDialogHandler,
-            @NonNull ProgressDialogController progressDialogController,
             @NonNull String publishableKey,
             @NonNull String sellerNumber,
             @NonNull String productId,
-            @NonNull String skuId,
+            String skuId,
             @NonNull String productName) {
         this.activity = activity;
         this.cardInformationReader = cardInformationReader;
-        this.messageDialogHandler = messageDialogHandler;
+        this.messageDialogHandler = new MessageDialogHandler(activity.getSupportFragmentManager());
         this.publishableKey = publishableKey;
-        this.progressDialogController = progressDialogController;
+        this.progressDialogController = new ProgressDialogController(activity.getSupportFragmentManager(), R.string.ConversationActivity__billing__processing_payment_title, R.string.ConversationActivity__billing__processing_payment_content);;
         this.sellerNumber = sellerNumber;
         this.productId = productId;
         this.skuId = skuId;
@@ -66,12 +64,98 @@ public class PaymentController {
         button.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                processPayment();
+                processPaymentWithCard();
             }
         });
     }
 
-    private void processPayment() {
+    public PaymentController(
+            @NonNull FragmentActivity activity,
+            @NonNull String sellerNumber,
+            @NonNull String productId,
+            String skuId,
+            @NonNull String productName) {
+        this.activity = activity;
+        this.messageDialogHandler = new MessageDialogHandler(activity.getSupportFragmentManager());
+        this.progressDialogController = new ProgressDialogController(activity.getSupportFragmentManager(), R.string.ConversationActivity__billing__processing_payment_title, R.string.ConversationActivity__billing__processing_payment_content);
+        this.sellerNumber = sellerNumber;
+        this.productId = productId;
+        this.skuId = skuId;
+        this.productName = productName;
+    }
+
+    private AsyncTask<String, Void, Integer> getPaymentTask(final String tokenId) {
+        return new AsyncTask<String, Void, Integer>() {
+            private static final int SUCCESS        = 0;
+            private static final int NETWORK_ERROR  = 1;
+            private static final int INTERNAL_ERROR  = 2;
+
+            @Override
+            protected Integer doInBackground(String... params) {
+                String response = "";
+                try {
+                    Context context = activity;
+                    String sellerNumber = params[0];
+                    String productId = params[1];
+                    String skuId = params[2];
+
+                    SignalServiceBillingManager billingManager = TextSecureCommunicationFactory.createBillingManager(context);
+
+                    if (skuId != null) {
+                        // TODO: ignore the return value? or do something with it?
+                        response = billingManager.performCharge(productId, skuId, tokenId == null ? "" : tokenId, sellerNumber, productName);
+                    } else {
+                        billingManager.subscribeToPlan(productId, tokenId == null ? "" : tokenId, sellerNumber, productName);
+                    }
+
+                    return SUCCESS;
+                } catch (IOException e) {
+                    Log.w(TAG, e);
+                    Log.w(TAG, response);
+                    return NETWORK_ERROR;
+                }
+            }
+
+            @Override
+            protected void onPostExecute(Integer result) {
+                super.onPostExecute(result);
+
+                Context context = activity;
+
+                //TODO: handle error cases so that activity finishes
+
+                switch (result) {
+                    case SUCCESS:
+                        progressDialogController.finishProgress();
+
+                        AlertDialog.Builder builder = new AlertDialog.Builder(activity);
+                        builder.setMessage(R.string.PaymentActivity_payment_success);
+                        builder.setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {
+                                finishActivity();
+                            }
+                        });
+                        builder.show();
+
+                        return;
+                    case NETWORK_ERROR:
+                        Toast.makeText(context, R.string.PaymentActivity_network_error, Toast.LENGTH_LONG).show();
+                        break;
+                    case INTERNAL_ERROR:
+                        Toast.makeText(context, R.string.PaymentActivity_payment_error, Toast.LENGTH_LONG).show();
+                        break;
+                }
+            }
+        };
+    }
+
+    public void processPaymentWithStoredCustomer() {
+        progressDialogController.startProgress();
+        getPaymentTask(null).execute(sellerNumber, productId, skuId);
+    }
+
+    private void processPaymentWithCard() {
         Card cardToCharge = cardInformationReader.readCardData();
         progressDialogController.startProgress();
 
@@ -80,64 +164,7 @@ public class PaymentController {
                 publishableKey,
                 new TokenCallback() {
                     public void onSuccess(final Token token) {
-                        new AsyncTask<String, Void, Integer>() {
-                            private static final int SUCCESS        = 0;
-                            private static final int NETWORK_ERROR  = 1;
-                            private static final int INTERNAL_ERROR  = 2;
-
-                            @Override
-                            protected Integer doInBackground(String... params) {
-                                try {
-                                    Context context = activity;
-                                    String sellerNumber = params[0];
-                                    String productId = params[1];
-                                    String skuId = params[2];
-
-                                    SignalServiceBillingManager billingManager = TextSecureCommunicationFactory.createBillingManager(context);
-
-                                    // TODO: ignore the return value? or do something with it?
-                                    billingManager.performCharge(productId, skuId, token.getId(), sellerNumber, productName);
-
-                                    return SUCCESS;
-                                } catch (IOException e) {
-                                    Log.w(TAG, e);
-                                    return NETWORK_ERROR;
-                                }
-                            }
-
-                            @Override
-                            protected void onPostExecute(Integer result) {
-                                super.onPostExecute(result);
-
-                                Context context = activity;
-
-                                //TODO: handle error cases so that activity finishes
-
-                                switch (result) {
-                                    case SUCCESS:
-                                        progressDialogController.finishProgress();
-
-                                        AlertDialog.Builder builder = new AlertDialog.Builder(activity);
-                                        builder.setMessage(R.string.PaymentActivity_payment_success);
-                                        builder.setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
-                                            @Override
-                                            public void onClick(DialogInterface dialog, int which) {
-                                                finishActivity();
-                                            }
-                                        });
-                                        builder.show();
-
-                                        return;
-                                    case NETWORK_ERROR:
-                                        Toast.makeText(context, R.string.PaymentActivity_network_error, Toast.LENGTH_LONG).show();
-                                        break;
-                                    case INTERNAL_ERROR:
-                                        Toast.makeText(context, R.string.PaymentActivity_payment_error, Toast.LENGTH_LONG).show();
-                                        break;
-                                }
-                            }
-
-                        }.execute(sellerNumber, productId, skuId);
+                        getPaymentTask(token.getId()).execute(sellerNumber, productId, skuId);
                     }
                     public void onError(Exception error) {
                         messageDialogHandler.showMessage(R.string.PaymentActivity_validationErrors, error.getLocalizedMessage());

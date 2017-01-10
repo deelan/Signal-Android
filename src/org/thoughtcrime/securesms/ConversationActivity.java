@@ -68,6 +68,8 @@ import com.google.gson.JsonDeserializer;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonParseException;
 import com.google.protobuf.ByteString;
+import com.stripe.model.Plan;
+import com.stripe.model.PlanCollection;
 import com.stripe.model.Product;
 import com.stripe.model.ProductCollection;
 import com.stripe.model.SKU;
@@ -122,9 +124,9 @@ import org.thoughtcrime.securesms.mms.Slide;
 import org.thoughtcrime.securesms.mms.SlideDeck;
 import org.thoughtcrime.securesms.notifications.MarkReadReceiver;
 import org.thoughtcrime.securesms.notifications.MessageNotifier;
+import org.thoughtcrime.securesms.payment.BillingListActivity;
 import org.thoughtcrime.securesms.payment.Payment;
 import org.thoughtcrime.securesms.payment.PaymentList;
-import org.thoughtcrime.securesms.payment.PaymentListActivity;
 import org.thoughtcrime.securesms.payment.PaymentListFragment;
 import org.thoughtcrime.securesms.providers.PersistentBlobProvider;
 import org.thoughtcrime.securesms.push.TextSecureCommunicationFactory;
@@ -246,6 +248,8 @@ public class ConversationActivity extends PassphraseRequiredActionBarActivity
   private ArrayList<org.thoughtcrime.securesms.payment.Product> products;
   private org.thoughtcrime.securesms.payment.Product selectedProduct;
   private ArrayList<Payment> payments;
+  private String platformCustomerId;
+  private String connectedCustomerId;
 
   private PaymentListFragment paymentListFragment;
 
@@ -793,10 +797,12 @@ public class ConversationActivity extends PassphraseRequiredActionBarActivity
 
   private void handleShowProducts() {
     if (products != null && !products.isEmpty()) {
-      Intent paymentListIntent = new Intent(this, PaymentListActivity.class);
+      Intent productListIntent = new Intent(this, BillingListActivity.class);
 
-      paymentListIntent.putExtra("products", true);
-      paymentListIntent.putParcelableArrayListExtra("PRODUCTS", products);
+      productListIntent.putExtra("products", true);
+      productListIntent.putParcelableArrayListExtra("PRODUCTS", products);
+      productListIntent.putExtra("platformCustomerId", platformCustomerId);
+      productListIntent.putExtra("connectedCustomerId", connectedCustomerId);
 
       String sellerNumber = null;
       try {
@@ -806,16 +812,16 @@ public class ConversationActivity extends PassphraseRequiredActionBarActivity
       }
 
       if (sellerNumber != null) {
-        paymentListIntent.putExtra("SELLER_NUMBER", sellerNumber);
+        productListIntent.putExtra("SELLER_NUMBER", sellerNumber);
       }
 
-      startActivity(paymentListIntent);
+      startActivity(productListIntent);
     }
   }
 
   private void handleShowPayments() {
     if (payments != null && !payments.isEmpty()) {
-      Intent paymentListIntent = new Intent(this, PaymentListActivity.class);
+      Intent paymentListIntent = new Intent(this, BillingListActivity.class);
 
       paymentListIntent.putExtra("payments", true);
       paymentListIntent.putParcelableArrayListExtra("PAYMENTS", payments);
@@ -1199,79 +1205,107 @@ public class ConversationActivity extends PassphraseRequiredActionBarActivity
   }
 
   private void initializeBilling() {
-    new AsyncTask<Void, Void, Map<String, Object>>() {
-      @Override
-      protected Map<String, Object> doInBackground(Void... params) {
-        SignalServiceBillingManager billingManager = TextSecureCommunicationFactory.createBillingManager(ConversationActivity.this);
+    if (isSingleConversation()) {
+      new AsyncTask<Void, Void, Map<String, Object>>() {
+        @Override
+        protected Map<String, Object> doInBackground(Void... params) {
+          SignalServiceBillingManager billingManager = TextSecureCommunicationFactory.createBillingManager(ConversationActivity.this);
 
-        if (isSingleConversation()) {
-          try {
-            Recipient otherContact = recipients.getPrimaryRecipient();
+          if (isSingleConversation()) {
+            try {
+              Recipient otherContact = recipients.getPrimaryRecipient();
 
-            if (otherContact != null) {
-              String otherNumber = Util.canonicalizeNumber(ConversationActivity.this, otherContact.getNumber());
-              ProductCollection pc = billingManager.getProducts(otherNumber);
-              String paymentsString = billingManager.getPayments(otherNumber);
+              if (otherContact != null) {
+                String otherNumber = Util.canonicalizeNumber(ConversationActivity.this, otherContact.getNumber());
 
-              GsonBuilder builder = new GsonBuilder();
+                // TODO: should we do all these requests in one or each independently ??
+                ProductCollection pc = billingManager.getProducts(otherNumber);
+                String paymentsString = billingManager.getPayments(otherNumber);
+                Map<String, String> customerIds = billingManager.getCustomerIds();
+                PlanCollection planCol = billingManager.getPlans(otherNumber);
 
-              // Register an adapter to manage the date types as long values
-              builder.registerTypeAdapter(Date.class, new JsonDeserializer<Date>() {
-                public Date deserialize(JsonElement json, java.lang.reflect.Type typeOfT, JsonDeserializationContext context) throws JsonParseException {
-                  return new Date(json.getAsJsonPrimitive().getAsLong() * 1000);
-                }
-              });
+                GsonBuilder builder = new GsonBuilder();
 
-              Gson gson = builder.create();
-              List<Payment> payments = gson.fromJson(paymentsString, PaymentList.class).getPayments();
+                // Register an adapter to manage the date types as long values
+                builder.registerTypeAdapter(Date.class, new JsonDeserializer<Date>() {
+                  public Date deserialize(JsonElement json, java.lang.reflect.Type typeOfT, JsonDeserializationContext context) throws JsonParseException {
+                    return new Date(json.getAsJsonPrimitive().getAsLong() * 1000);
+                  }
+                });
 
-              Map<String, Object> result = new HashMap<>();
-              result.put("products", pc);
-              result.put("payments", payments);
+                Gson gson = builder.create();
+                List<Payment> payments = gson.fromJson(paymentsString, PaymentList.class).getPayments();
 
-              return result;
+                Map<String, Object> result = new HashMap<>();
+                result.put("products", pc);
+                result.put("payments", payments);
+                result.put("customerIds", customerIds);
+                result.put("plans", planCol);
+
+                return result;
+              }
+            } catch (IOException | InvalidNumberException e) {
+              // ignore
+              // TODO: need to log if ignoring exception?
+              Log.e(TAG, "Failed while retrieving product or payment list.", e);
             }
-          } catch (IOException | InvalidNumberException e) {
-            // ignore
-            // TODO: need to log if ignoring exception?
-            Log.e(TAG, "Failed while retrieving product or payment list.", e);
           }
+
+          return Collections.EMPTY_MAP;
         }
 
-        return Collections.EMPTY_MAP;
-      }
+        @Override
+        protected void onPostExecute(Map<String, Object> results) {
+          ProductCollection resultProducts = (ProductCollection) results.get("products");
 
-      @Override
-      protected void onPostExecute(Map<String, Object> results) {
-        ProductCollection resultProducts = (ProductCollection)results.get("products");
+          // convert the Stripe products to our internal version
+          ArrayList<org.thoughtcrime.securesms.payment.Product> products = new ArrayList<>();
 
-        // convert the Stripe products to our internal version
-        ArrayList<org.thoughtcrime.securesms.payment.Product> products = new ArrayList<>();
+          if (resultProducts != null && resultProducts.getData() != null) {
+            for (Product product : resultProducts.getData()) {
+              for (SKU sku : product.getSkus().getData()) {
+                products.add(new org.thoughtcrime.securesms.payment.Product(
+                        product.getName(),
+                        product.getId(),
+                        sku.getId(),
+                        product.getDescription(),
+                        Long.valueOf(sku.getPrice())));
+              }
+            }
+          }
 
-        if (resultProducts != null && resultProducts.getData() != null) {
-          for (Product product : resultProducts.getData()) {
-            for (SKU sku : product.getSkus().getData()) {
+          PlanCollection resultPlans = (PlanCollection) results.get("plans");
+
+          if (resultPlans != null && resultPlans.getData() != null) {
+            for (Plan plan : resultPlans.getData()) {
               products.add(new org.thoughtcrime.securesms.payment.Product(
-                      product.getName(),
-                      product.getId(),
-                      sku.getId(),
-                      product.getDescription(),
-                      sku.getPrice()));
+                      plan.getName(),
+                      plan.getId(),
+                      getString(R.string.ConversationActivity_plan_description),
+                      plan.getAmount(),
+                      plan.getInterval()));
+            }
+          }
+
+          ConversationActivity.this.products = products;
+          ConversationActivity.this.payments = (ArrayList<Payment>) results.get("payments");
+
+          Map<String, String> customerIds = (Map<String, String>) results.get("customerIds");
+
+          if (customerIds != null) {
+            ConversationActivity.this.platformCustomerId = customerIds.get("platformCustomerId");
+            ConversationActivity.this.connectedCustomerId = customerIds.get("connectedCustomerId");
+          }
+
+          if ((products != null && !products.isEmpty())
+                  || payments != null && !payments.isEmpty()) {
+            if (ConversationActivity.this.optionsMenu != null) {
+              ConversationActivity.this.onPrepareOptionsMenu(ConversationActivity.this.optionsMenu);
             }
           }
         }
-
-        ConversationActivity.this.products = products;
-        ConversationActivity.this.payments = (ArrayList<Payment>)results.get("payments");
-
-        if ((products != null && !products.isEmpty())
-                || payments != null && !payments.isEmpty()) {
-          if (ConversationActivity.this.optionsMenu != null) {
-            ConversationActivity.this.onPrepareOptionsMenu(ConversationActivity.this.optionsMenu);
-          }
-        }
-      }
-    }.execute();
+      }.execute();
+    }
   }
 
   //////// Helper Methods

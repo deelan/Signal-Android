@@ -11,9 +11,9 @@ import org.thoughtcrime.securesms.util.DynamicTheme;
 
 import java.util.ArrayList;
 
-public class PaymentListActivity extends PassphraseRequiredActionBarActivity {
+public class BillingListActivity extends PassphraseRequiredActionBarActivity {
 
-    private static final String TAG = PaymentListActivity.class.getSimpleName();
+    private static final String TAG = BillingListActivity.class.getSimpleName();
 
     private final DynamicTheme dynamicTheme    = new DynamicTheme();
     private final DynamicLanguage dynamicLanguage = new DynamicLanguage();
@@ -45,6 +45,8 @@ public class PaymentListActivity extends PassphraseRequiredActionBarActivity {
 
             Bundle args = new Bundle();
             args.putParcelableArrayList("PRODUCTS", products);
+            args.putString("platformCustomerId", getIntent().getStringExtra("platformCustomerId"));
+            args.putString("connectedCustomerId", getIntent().getStringExtra("connectedCustomerId"));
             args.putString("SELLER_NUMBER", sellerNumber);
 
             productListFragment = initFragment(android.R.id.content, new ProductListFragment(),

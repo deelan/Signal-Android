@@ -18,8 +18,7 @@ import org.thoughtcrime.securesms.R;
 import java.util.List;
 import java.util.Locale;
 
-public class ProductListFragment extends ListFragment implements ListView.OnItemClickListener
-{
+public class ProductListFragment extends ListFragment implements ListView.OnItemClickListener {
 
     private static final String TAG = ProductListFragment.class.getSimpleName();
 
@@ -31,6 +30,8 @@ public class ProductListFragment extends ListFragment implements ListView.OnItem
 
     private List<Product> products;
     private String sellerNumber;
+    private String platformCustomerId;
+    private String connectedCustomerId;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -47,6 +48,9 @@ public class ProductListFragment extends ListFragment implements ListView.OnItem
 
         sellerNumber = getArguments().getString("SELLER_NUMBER");
         products = getArguments().getParcelableArrayList("PRODUCTS");
+        platformCustomerId = getArguments().getString("platformCustomerId");
+        connectedCustomerId = getArguments().getString("connectedCustomerId");
+
         setListAdapter(new ProductListFragment.ProductListAdapter(getActivity(), R.layout.product_list_item_view, products, locale));
 
         if (products == null || products.isEmpty()) {
@@ -68,14 +72,19 @@ public class ProductListFragment extends ListFragment implements ListView.OnItem
     public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
         Product product = products.get(position);
 
-        Intent paymentIntent = new Intent(getActivity(), PaymentActivity.class);
+        if (platformCustomerId != null) {
+            PaymentController pc = new PaymentController(getActivity(), sellerNumber, product.getProductId(), product.getSkuId(), product.getName());
+            pc.processPaymentWithStoredCustomer();
+        } else {
+            Intent paymentIntent = new Intent(getActivity(), PaymentActivity.class);
 
-        if (sellerNumber != null) {
-            paymentIntent.putExtra("SELLER_NUMBER", sellerNumber);
-            paymentIntent.putExtra("PRODUCT_ID", product.getProductId());
-            paymentIntent.putExtra("SKU_ID", product.getSkuId());
-            paymentIntent.putExtra("PRODUCT_NAME", product.getName());
-            startActivityForResult(paymentIntent, PAYMENT);
+            if (sellerNumber != null) {
+                paymentIntent.putExtra("SELLER_NUMBER", sellerNumber);
+                paymentIntent.putExtra("PRODUCT_ID", product.getProductId());
+                paymentIntent.putExtra("SKU_ID", product.getSkuId());
+                paymentIntent.putExtra("PRODUCT_NAME", product.getName());
+                startActivityForResult(paymentIntent, PAYMENT);
+            }
         }
     }
 

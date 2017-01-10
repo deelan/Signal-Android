@@ -38,6 +38,10 @@ public class ProductListItem extends LinearLayout {
         double priceDbl = product.getAmount() / 100;
         String price = String.format("$ %.2f", priceDbl);
 
+        if (product.getInterval() != null) {
+            price = String.format("%s/%s", price, product.getInterval());
+        }
+
         this.amount.setText(price);
         this.description.setText(product.getDescription());
         this.productId = product.getProductId();

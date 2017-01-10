@@ -8,11 +8,20 @@ public class Product implements Parcelable {
     private String productId;
     private String skuId;
     private String description;
-    private int amount;
+    private Long amount;
+    private String interval;
 
     public Product() {}
 
-    public Product(String name, String productId, String skuId, String description, int amount) {
+    public Product(String name, String planId, String description, Long amount, String interval) {
+        this.name = name;
+        this.productId = planId;
+        this.description = description;
+        this.amount = amount;
+        this.interval = interval;
+    }
+
+    public Product(String name, String productId, String skuId, String description, Long amount) {
         this.name = name;
         this.productId = productId;
         this.skuId = skuId;
@@ -20,9 +29,19 @@ public class Product implements Parcelable {
         this.amount = amount;
     }
 
+    public Product(String name, String productId, String skuId, String description, Long amount, String interval) {
+        this.name = name;
+        this.productId = productId;
+        this.skuId = skuId;
+        this.description = description;
+        this.amount = amount;
+        this.interval = interval;
+    }
+
     public String getName() {
         return name;
     }
+
     public String getProductId() {
         return productId;
     }
@@ -35,8 +54,12 @@ public class Product implements Parcelable {
         return description;
     }
 
-    public int getAmount() {
+    public Long getAmount() {
         return amount;
+    }
+
+    public String getInterval() {
+        return interval;
     }
 
     @Override
@@ -50,7 +73,8 @@ public class Product implements Parcelable {
         parcel.writeString(productId);
         parcel.writeString(skuId);
         parcel.writeString(description);
-        parcel.writeInt(amount);
+        parcel.writeLong(amount);
+        parcel.writeString(interval);
     }
 
     public static final Creator<Product> CREATOR = new Creator<Product>() {
@@ -68,6 +92,7 @@ public class Product implements Parcelable {
         this.productId = in.readString();
         this.skuId = in.readString();
         this.description = in.readString();
-        this.amount = in.readInt();
+        this.amount = in.readLong();
+        this.interval = in.readString();
     }
 }

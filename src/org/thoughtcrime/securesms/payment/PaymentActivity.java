@@ -2,6 +2,7 @@ package org.thoughtcrime.securesms.payment;
 
 import android.os.Bundle;
 import android.support.annotation.NonNull;
+import android.view.MenuItem;
 import android.widget.Button;
 import android.widget.TextView;
 
@@ -17,8 +18,6 @@ public class PaymentActivity extends PassphraseRequiredActionBarActivity {
 
     private PaymentController paymentController;
     private CardInformationReader cardInformationReader;
-    private MessageDialogHandler messageDialogHandler;
-    private ProgressDialogController progressDialogController;
     private CardValidationController cardValidationController;
 
     private final DynamicTheme dynamicTheme    = new DynamicTheme();
@@ -52,8 +51,6 @@ public class PaymentActivity extends PassphraseRequiredActionBarActivity {
                     this,
                     payButton,
                     cardInformationReader,
-                    messageDialogHandler,
-                    progressDialogController,
                     BuildConfig.STRIPE_PK,
                     sellerNumber,
                     productId,
@@ -69,16 +66,28 @@ public class PaymentActivity extends PassphraseRequiredActionBarActivity {
         cardValidationController = null;
     }
 
+    /**
+     * For some reason this override is required to produce the appropriate back behaviour on click of the up/back arrow in the action bar.
+     * @param item The menu item that was clicked (will only be the up/back arrow in this case)
+     * @return the result of the operation
+     */
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            // fespond to the action bar's Up/Home button by using the default back button behaviour
+            case android.R.id.home:
+                onBackPressed();
+                return true;
+        }
+
+        return super.onOptionsItemSelected(item);
+    }
+
     private void initializeViews(Button payButton) {
         CreditCardView creditCardView = (CreditCardView) findViewById(R.id.credit_card);
         TextView validationErrorTextView = (TextView) findViewById(R.id.validation_error);
 
         cardInformationReader = new CardInformationReader(creditCardView);
-
-        progressDialogController = new ProgressDialogController(getSupportFragmentManager(), R.string.ConversationActivity__billing__processing_payment_title, R.string.ConversationActivity__billing__processing_payment_content);
-
-        messageDialogHandler = new MessageDialogHandler(getSupportFragmentManager());
-
-        cardValidationController = new CardValidationController(this, creditCardView, payButton, validationErrorTextView, messageDialogHandler);
+        cardValidationController = new CardValidationController(this, creditCardView, payButton, validationErrorTextView);
     }
 }
