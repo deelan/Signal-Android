@@ -74,7 +74,7 @@ public class PaymentActivity extends PassphraseRequiredActionBarActivity {
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
-            // fespond to the action bar's Up/Home button by using the default back button behaviour
+            // respond to the action bar's Up/Home button by using the default back button behaviour
             case android.R.id.home:
                 onBackPressed();
                 return true;

@@ -2,9 +2,11 @@ package org.thoughtcrime.securesms.payment;
 
 import android.app.Activity;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.ListFragment;
+import android.support.v7.app.AlertDialog;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -70,11 +72,22 @@ public class ProductListFragment extends ListFragment implements ListView.OnItem
 
     @Override
     public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-        Product product = products.get(position);
+        final Product product = products.get(position);
 
         if (platformCustomerId != null) {
-            PaymentController pc = new PaymentController(getActivity(), sellerNumber, product.getProductId(), product.getSkuId(), product.getName());
-            pc.processPaymentWithStoredCustomer();
+            AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+            builder.setTitle(getActivity().getString(R.string.ProductListFragment_stored_payment_confirmation_title));
+            builder.setMessage(R.string.ProductListFragment_stored_payment_confirmation_content);
+            builder.setNegativeButton(android.R.string.cancel, null);
+            builder.setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialog, int which) {
+                    PaymentController pc = new PaymentController(getActivity(), sellerNumber, product.getProductId(), product.getSkuId(), product.getName());
+                    pc.processPaymentWithStoredCustomer();
+                }
+            });
+            builder.show();
+
         } else {
             Intent paymentIntent = new Intent(getActivity(), PaymentActivity.class);
 

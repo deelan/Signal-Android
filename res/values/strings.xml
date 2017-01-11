@@ -279,6 +279,8 @@
 
     <!-- ProductListFragment -->
     <string name="ProductListFragment_empty">No products available...</string>
+    <string name="ProductListFragment_stored_payment_confirmation_title">Confirm Payment</string>
+    <string name="ProductListFragment_stored_payment_confirmation_content">You have stored payment information available. Do you want to proceed with payment?</string>
 
     <!-- PaymentListFragment -->
     <string name="PaymentListFragment_empty">No payments on record...</string>
