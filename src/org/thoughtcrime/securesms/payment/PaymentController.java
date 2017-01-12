@@ -88,7 +88,8 @@ public class PaymentController {
         return new AsyncTask<String, Void, Integer>() {
             private static final int SUCCESS        = 0;
             private static final int NETWORK_ERROR  = 1;
-            private static final int INTERNAL_ERROR  = 2;
+            private static final int INTERNAL_ERROR = 2;
+            private static final int CARD_ERROR     = 3;
 
             @Override
             protected Integer doInBackground(String... params) {
@@ -103,7 +104,7 @@ public class PaymentController {
 
                     if (skuId != null) {
                         // TODO: ignore the return value? or do something with it?
-                        response = billingManager.performCharge(productId, skuId, tokenId == null ? "" : tokenId, sellerNumber, productName);
+                        billingManager.performCharge(productId, skuId, tokenId == null ? "" : tokenId, sellerNumber, productName);
                     } else {
                         billingManager.subscribeToPlan(productId, tokenId == null ? "" : tokenId, sellerNumber, productName);
                     }
@@ -111,7 +112,11 @@ public class PaymentController {
                     return SUCCESS;
                 } catch (IOException e) {
                     Log.w(TAG, e);
-                    Log.w(TAG, response);
+
+                    if (e.getMessage().contains("decline")) {
+                        return CARD_ERROR;
+                    }
+
                     return NETWORK_ERROR;
                 }
             }
@@ -123,12 +128,12 @@ public class PaymentController {
                 Context context = activity;
 
                 //TODO: handle error cases so that activity finishes
+                progressDialogController.finishProgress();
+
+                AlertDialog.Builder builder = new AlertDialog.Builder(activity);
 
                 switch (result) {
                     case SUCCESS:
-                        progressDialogController.finishProgress();
-
-                        AlertDialog.Builder builder = new AlertDialog.Builder(activity);
                         builder.setMessage(R.string.PaymentActivity_payment_success);
                         builder.setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
                             @Override
@@ -139,6 +144,11 @@ public class PaymentController {
                         builder.show();
 
                         return;
+                    case CARD_ERROR:
+                        builder.setMessage(R.string.PaymentActivity_payment_declined);
+                        builder.setPositiveButton(android.R.string.ok, null);
+                        builder.show();
+                        break;
                     case NETWORK_ERROR:
                         Toast.makeText(context, R.string.PaymentActivity_network_error, Toast.LENGTH_LONG).show();
                         break;

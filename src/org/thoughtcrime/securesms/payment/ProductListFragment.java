@@ -78,14 +78,30 @@ public class ProductListFragment extends ListFragment implements ListView.OnItem
             AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
             builder.setTitle(getActivity().getString(R.string.ProductListFragment_stored_payment_confirmation_title));
             builder.setMessage(R.string.ProductListFragment_stored_payment_confirmation_content);
-            builder.setNegativeButton(android.R.string.cancel, null);
-            builder.setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
+            builder.setNeutralButton(android.R.string.cancel, null);
+
+            DialogInterface.OnClickListener listener = new DialogInterface.OnClickListener() {
                 @Override
                 public void onClick(DialogInterface dialog, int which) {
-                    PaymentController pc = new PaymentController(getActivity(), sellerNumber, product.getProductId(), product.getSkuId(), product.getName());
-                    pc.processPaymentWithStoredCustomer();
+                    if (which == DialogInterface.BUTTON_NEGATIVE) {
+                        Intent paymentIntent = new Intent(getActivity(), PaymentActivity.class);
+
+                        if (sellerNumber != null) {
+                            paymentIntent.putExtra("SELLER_NUMBER", sellerNumber);
+                            paymentIntent.putExtra("PRODUCT_ID", product.getProductId());
+                            paymentIntent.putExtra("SKU_ID", product.getSkuId());
+                            paymentIntent.putExtra("PRODUCT_NAME", product.getName());
+                            startActivityForResult(paymentIntent, PAYMENT);
+                        }
+                    } else {
+                        PaymentController pc = new PaymentController(getActivity(), sellerNumber, product.getProductId(), product.getSkuId(), product.getName());
+                        pc.processPaymentWithStoredCustomer();
+                    }
                 }
-            });
+            };
+
+            builder.setNegativeButton(R.string.ProductListFragment_stored_payment_confirmation_reenter_button, listener);
+            builder.setPositiveButton(R.string.ProductListFragment_stored_payment_confirmation_use_stored_button, listener);
             builder.show();
 
         } else {

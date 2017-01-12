@@ -279,8 +279,10 @@
 
     <!-- ProductListFragment -->
     <string name="ProductListFragment_empty">No products available...</string>
-    <string name="ProductListFragment_stored_payment_confirmation_title">Confirm Payment</string>
-    <string name="ProductListFragment_stored_payment_confirmation_content">You have stored payment information available. Do you want to proceed with payment?</string>
+    <string name="ProductListFragment_stored_payment_confirmation_title">Confirm Payment Method</string>
+    <string name="ProductListFragment_stored_payment_confirmation_content">You have stored payment information available. Please indicate how you would like to proceed with your payment.</string>
+    <string name="ProductListFragment_stored_payment_confirmation_reenter_button">Enter Card</string>
+    <string name="ProductListFragment_stored_payment_confirmation_use_stored_button">Use Stored</string>
 
     <!-- PaymentListFragment -->
     <string name="PaymentListFragment_empty">No payments on record...</string>
@@ -508,6 +510,7 @@
     <string name="PaymentActivity_network_error">Network error.</string>
 
     <string name="PaymentActivity_payment_success">Payment succeeded!</string>
+    <string name="PaymentActivity_payment_declined">Your payment was declined. Please check your card details and try again. If the problem persists, please check with your card provider.</string>
     <string name="PaymentActivity_payment_error">An unexpected error occurred during payment. Please try again.</string>
 
     <!-- BillingListActivity -->
