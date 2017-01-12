@@ -21,7 +21,6 @@ public class CardValidationController {
 
     private CreditCardView mCreditCardView;
     private TextView mValidationErrorTextView;
-    private MessageDialogHandler mMessageDialogHandler;
     private final AppCompatActivity activity;
 
     public CardValidationController(
@@ -32,22 +31,19 @@ public class CardValidationController {
         this.activity = activity;
         mCreditCardView = creditCardView;
         mValidationErrorTextView = validationErrorTextView;
-        mMessageDialogHandler = new MessageDialogHandler(activity.getSupportFragmentManager());
 
         creditCardView.setCallback(new CreditCardView.Callback() {
             @Override
             public void onValidated(Card card) {
-                mMessageDialogHandler.showMessage(R.string.PaymentActivity_validationSuccess, mCreditCardView.getContext().getString(R.string.PaymentActivity_cardValidatedMessage));
                 InputMethodManager imm = (InputMethodManager)activity.getSystemService(Context.INPUT_METHOD_SERVICE);
                 imm.hideSoftInputFromWindow(activity.getCurrentFocus().getWindowToken(), 0);
 
                 payButton.setEnabled(true);
-                // NOTE : could automatically save, or focus on other field, etc., at this point
-                //          as we have a validated Card object
             }
 
             @Override
             public void onError(int errorCode) {
+                payButton.setEnabled(false);
                 showValidationError(errorCode);
             }
 

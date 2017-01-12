@@ -224,7 +224,12 @@ public class CreditCardView extends FrameLayout {
                 mNumberEditText.setSelection(mNumberEditText.getText().toString().length());
                 ignoreTextChanges = false;
 
-                mCard = new Card.Builder(formattedString, 1, 0, "").build();
+                mCard = new Card.Builder(
+                        formattedString,
+                        mCard != null ? mCard.getExpMonth() : 1,
+                        mCard != null ? mCard.getExpYear() : 0,
+                        mCard != null ? mCard.getCVC() : ""
+                ).build();
                 setCreditCardIconForNumber();
 
                 // scroll to right if entered last number of card

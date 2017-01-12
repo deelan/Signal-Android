@@ -509,7 +509,8 @@
     <string name="PaymentActivity_cardErrorUnknown">The card details that you entered are invalid</string>
     <string name="PaymentActivity_network_error">Network error.</string>
 
-    <string name="PaymentActivity_payment_success">Payment succeeded!</string>
+    <string name="PaymentActivity_payment_success_title">Success!</string>
+    <string name="PaymentActivity_payment_success">Your payment was completed successfully! Thanks!</string>
     <string name="PaymentActivity_payment_declined">Your payment was declined. Please check your card details and try again. If the problem persists, please check with your card provider.</string>
     <string name="PaymentActivity_payment_error">An unexpected error occurred during payment. Please try again.</string>
 

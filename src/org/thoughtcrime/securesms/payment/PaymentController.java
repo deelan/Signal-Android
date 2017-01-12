@@ -134,6 +134,7 @@ public class PaymentController {
 
                 switch (result) {
                     case SUCCESS:
+                        builder.setTitle(R.string.PaymentActivity_payment_success_title);
                         builder.setMessage(R.string.PaymentActivity_payment_success);
                         builder.setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
                             @Override
