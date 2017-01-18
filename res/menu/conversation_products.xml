@@ -3,7 +3,7 @@
     xmlns:app="http://schemas.android.com/apk/res-auto">
     <item android:title="@string/conversation_products__menu_title"
         android:id="@+id/menu_products"
-        android:icon="@drawable/ic_emoji_symbols_activated_dark"
+        android:icon="@drawable/ic_menu_dollar_sign_dark"
         app:showAsAction="always"/>
 
 </menu>

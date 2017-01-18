@@ -4,7 +4,7 @@
 
     <item android:title="@string/conversation_chargeable__menu_view_payments"
         android:id="@+id/menu_view_payments"
-        android:icon="@drawable/ic_emoji_symbols_activated_dark"
+        android:icon="@drawable/ic_menu_dollar_sign_dark"
         app:showAsAction="always" />
 
 </menu>
