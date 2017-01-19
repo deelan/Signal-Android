@@ -64,8 +64,8 @@
   <!--CallScreen-->
   <string name="CallScreen_Incoming_call">Inkomende oproep</string>
   <!--ConfirmIdentityDialog-->
-  <string name="ConfirmIdentityDialog_the_signature_on_this_key_exchange_is_different">De veiligheidsnummers voor %1$s zijn veranderd. Dat kan betekenen dat iemand je communicatie probeert te onderscheppen, of gewoon dat %2$s Signal opnieuw geïnstalleerd heeft.</string>
-  <string name="ConfirmIdentityDialog_you_may_wish_to_verify_this_contact">Je zou de veiligheidsnummers voor dit contact kunnen verifiëren</string>
+  <string name="ConfirmIdentityDialog_your_safety_number_with_s_has_changed">Je veiligheidsnummer met %1$s is veranderd. Dit kan betekenen dat iemand je communicatie probeert te onderscheppen, of gewoon dat %2$s Signal opnieuw geïnstalleerd heeft.</string>
+  <string name="ConfirmIdentityDialog_you_may_wish_to_verify_your_safety_number_with_this_contact">Veiligheidsnummers met deze contactpersoon verifiëren.</string>
   <string name="ConfirmIdentityDialog_accept">Aanvaarden</string>
   <!--ContactsDatabase-->
   <string name="ContactsDatabase_message_s">Bericht sturen naar %s</string>
@@ -130,7 +130,7 @@
   <string name="ConversationActivity_attachment_exceeds_size_limits">Bijlage overschrijdt de maximale grootte voor het type bericht dat je wil verzenden.</string>
   <string name="ConversationActivity_quick_camera_unavailable">Camera niet beschikbaar</string>
   <string name="ConversationActivity_unable_to_record_audio">Fout bij opnemen audio!</string>
-  <string name="ConversationActivity_error_sending_voice_message">Fout bij verzenden van audiobericht...</string>
+  <string name="ConversationActivity_error_sending_voice_message">Fout bij versturen audiobericht</string>
   <string name="ConversationActivity_there_is_no_app_available_to_handle_this_link_on_your_device">Er is geen app aanwezig op het apparaat om deze link te openen.</string>
   <!--ConversationFragment-->
   <string name="ConversationFragment_message_details">Berichtdetails</string>
@@ -153,7 +153,10 @@
     <item quantity="one">Fout tijdens het opslaan van de bijlage!</item>
     <item quantity="other">Fout tijdens het opslaan van de bijlage!</item>
   </plurals>
-  <string name="ConversationFragment_file_saved_successfully">Bestand succesvol opgeslagen.</string>
+  <plurals name="ConversationFragment_files_saved_successfully">
+    <item quantity="one">Bestand succesvol opgeslagen.</item>
+    <item quantity="other">Bestanden succesvol opgeslagen.</item>
+  </plurals>
   <string name="ConversationFragment_unable_to_write_to_sd_card_exclamation">Opslag niet beschrijfbaar!</string>
   <plurals name="ConversationFragment_saving_n_attachments">
     <item quantity="one">Bijlage opslaan</item>
@@ -171,7 +174,7 @@
   <string name="ConversationFragment_deleting">Verwijderen</string>
   <string name="ConversationFragment_deleting_messages">Berichten verwijderen...</string>
   <!--ConversationListActivity-->
-  <string name="ConversationListActivity_search">Zoeken...</string>
+  <string name="ConversationListActivity_search">Zoeken</string>
   <string name="ConversationListActivity_there_is_no_browser_installed_on_your_device">Er is geen browser op het apparaat geïnstalleerd.</string>
   <!--ConversationListFragment-->
   <plurals name="ConversationListFragment_delete_selected_conversations">
@@ -194,7 +197,7 @@
     <item quantity="other"> %d gesprekken naar postvak IN verplaatst</item>
   </plurals>
   <!--ConversationListItem-->
-  <string name="ConversationListItem_key_exchange_message">Sleuteluitwisselingsbericht...</string>
+  <string name="ConversationListItem_key_exchange_message">Sleuteluitwisselingsbericht</string>
   <!--ConversationListItemAction-->
   <string name="ConversationListItemAction_archived_conversations_d">Gesprekken gearchiveerd (%d)</string>
   <!--CustomDefaultPreference-->
@@ -202,12 +205,12 @@
   <string name="CustomDefaultPreference_using_default">Standaard in gebruik: %s</string>
   <string name="CustomDefaultPreference_none">Geen</string>
   <!--DateUtils-->
-  <string name="DateUtils_now">Nu</string>
+  <string name="DateUtils_just_now">Nu</string>
   <string name="DateUtils_minutes_ago">%d min</string>
   <!--DeviceListActivity-->
   <string name="DeviceListActivity_unlink_s">\'%s\' ontkoppelen?</string>
   <string name="DeviceListActivity_by_unlinking_this_device_it_will_no_longer_be_able_to_send_or_receive">Door het ontkoppelen van dit apparaat kan het geen berichten meer verzenden of ontvangen.</string>
-  <string name="DeviceListActivity_network_connection_failed">Netwerkverbinding mislukt...</string>
+  <string name="DeviceListActivity_network_connection_failed">Netwerkfout</string>
   <string name="DeviceListActivity_try_again">Opnieuw proberen</string>
   <string name="DeviceListActivity_unlinking_device">Apparaat ontkoppelen...</string>
   <string name="DeviceListActivity_unlinking_device_no_ellipsis">Apparaat ontkoppelen</string>
@@ -239,7 +242,7 @@
   <string name="GcmRefreshJob_Permanent_Signal_communication_failure">Permanente Signal-communicatiefout!</string>
   <string name="GcmRefreshJob_Signal_was_unable_to_register_with_Google_Play_Services">Signal was niet in staat met Google Play services te registreren. Signal berichten en oproepen zijn nu uitgeschakeld, probeer opnieuw te registreren via Instellingen &gt; Geavanceerd.</string>
   <!--GiphyActivity-->
-  <string name="GiphyActivity_error_while_retrieving_full_resolution_gif">Fout bij ophalen van GIF in volledige resolutie...</string>
+  <string name="GiphyActivity_error_while_retrieving_full_resolution_gif">Fout bij het ophalen van de GIF in volledige resolutie</string>
   <!--GiphyFragmentPageAdapter-->
   <string name="GiphyFragmentPagerAdapter_gifs">GIFs</string>
   <string name="GiphyFragmentPagerAdapter_stickers">Stickers</string>
@@ -312,11 +315,11 @@ Herstellen van een versleutelde back-up zal je bestaande sleutels, voorkeuren en
   <string name="KeyScanningActivity_this_application_requires_barcode_scanner_would_you_like_to_install_it">Signal heeft Barcode Scanner nodig voor QR-codes.</string>
   <!--MessageDetailsRecipient-->
   <string name="MessageDetailsRecipient_failed_to_send">Verzenden mislukt</string>
-  <string name="MessageDetailsRecipient_new_safety_numbers">Nieuwe veiligheidsnummers</string>
+  <string name="MessageDetailsRecipient_new_safety_number">Nieuw veiligheidsnummer</string>
   <!--MmsDownloader-->
   <string name="MmsDownloader_error_storing_mms">MMS opslaan mislukt!</string>
-  <string name="MmsDownloader_error_connecting_to_mms_provider">Fout bij verbinden met MMS provider...</string>
-  <string name="MmsDownloader_error_reading_mms_settings">Fout bij het lezen van de MMS-instellingen van je provider...</string>
+  <string name="MmsDownloader_error_connecting_to_mms_provider">Fout bij het verbinden met de MMS provider</string>
+  <string name="MmsDownloader_error_reading_mms_settings">Fout bij het lezen van de MMS instellingen van de provider</string>
   <!--- NotificationBarManager-->
   <string name="NotificationBarManager_signal_call_in_progress">Signal-oproep aan de gang</string>
   <string name="NotificationBarManager_missed_call_from_s">Gemiste oproep van %s</string>
@@ -339,7 +342,7 @@ Herstellen van een versleutelde back-up zal je bestaande sleutels, voorkeuren en
   <string name="MessageRecord_s_is_on_signal_say_hey">%s gebruikt nu Signal, zeg hoi!</string>
   <string name="MessageRecord_you_set_disappearing_message_time_to_s">Je hebt de timer voor verdwijnende berichten ingesteld op %1$s.</string>
   <string name="MessageRecord_s_set_disappearing_message_time_to_s">%1$s heeft de timer voor verdwijnende berichten ingesteld op %2$s.</string>
-  <string name="MessageRecord_your_safety_numbers_with_s_have_changed">Je veiligheidsnummers met %s zijn veranderd</string>
+  <string name="MessageRecord_your_safety_number_with_s_has_changed">Je veiligheidsnummer met %s is veranderd.</string>
   <!--PassphraseChangeActivity-->
   <string name="PassphraseChangeActivity_passphrases_dont_match_exclamation">Wachtwoorden komen niet overeen</string>
   <string name="PassphraseChangeActivity_incorrect_old_passphrase_exclamation">Incorrect oud wachtwoord!</string>
@@ -360,7 +363,7 @@ Herstellen van een versleutelde back-up zal je bestaande sleutels, voorkeuren en
   <string name="DeviceProvisioningActivity_content_progress_no_device">Geen apparaat gevonden.</string>
   <string name="DeviceProvisioningActivity_content_progress_network_error">Netwerkfout.</string>
   <string name="DeviceProvisioningActivity_content_progress_key_error">Ongeldige QR-code.</string>
-  <string name="DeviceProvisioningActivity_sorry_you_have_too_many_devices_linked_already">Sorry, je hebt te veel gekoppelde apparaten, probeer er enkele te verwijderen...</string>
+  <string name="DeviceProvisioningActivity_sorry_you_have_too_many_devices_linked_already">Sorry, je hebt te veel apparaten geregistreerd, probeer er enkele te verwijderen</string>
   <string name="DeviceActivity_sorry_this_is_not_a_valid_device_link_qr_code">Sorry, dit is geen geldige QR-code voor koppeling van een apparaat.</string>
   <string name="DeviceProvisioningActivity_link_a_signal_device">Een Signal-apparaat koppelen?</string>
   <string name="DeviceProvisioningActivity_it_looks_like_youre_trying_to_link_a_signal_device_using_a_3rd_party_scanner">Het lijkt erop dat je een Signal-apparaat wil koppelen met een externe scanner. Scan voor de veiligheid alsjeblieft de code opnieuw vanuit Signal.</string>
@@ -391,6 +394,7 @@ Herstellen van een versleutelde back-up zal je bestaande sleutels, voorkeuren en
   <string name="RecipientPreferenceActivity_unblock">Deblokkeren</string>
   <string name="RecipientPreferenceActivity_enabled">Ingeschakeld</string>
   <string name="RecipientPreferenceActivity_disabled">Uitgeschakeld</string>
+  <string name="RecipientPreferenceActivity_available_once_a_message_has_been_sent_or_received">Beschikbaar zodra er een bericht verstuurd of ontvangen is</string>
   <!--RedPhone-->
   <string name="RedPhone_answering">Beantwoorden</string>
   <string name="RedPhone_ending_call">Oproep beëindigen</string>
@@ -435,7 +439,7 @@ ingevoerd (%s) is ongeldig.</string>
   <string name="RegistrationProgressActivity_verifying_number">Nummer verifiëren</string>
   <string name="RegistrationProgressActivity_edit_s">%s bewerken</string>
   <string name="RegistrationProgressActivity_registration_complete">Registratie voltooid!</string>
-  <string name="RegistrationProgressActivity_you_must_enter_the_code_you_received_first">Je moet eerst de code invullen die je hebt ontvangen...</string>
+  <string name="RegistrationProgressActivity_you_must_enter_the_code_you_received_first">Je moet eerst de ontvangen code invoeren</string>
   <string name="RegistrationProgressActivity_connecting">Verbinden</string>
   <string name="RegistrationProgressActivity_connecting_for_verification">Verbinden voor verificatie...</string>
   <string name="RegistrationProgressActivity_network_error">Netwerkfout!</string>
@@ -466,12 +470,12 @@ ingevoerd (%s) is ongeldig.</string>
 ontvangen!</string>
   <string name="SmsMessageRecord_received_key_exchange_message_for_invalid_protocol_version">
 Sleuteluitwisselingsbericht ontvangen voor een verkeerde protocol-versie.</string>
-  <string name="SmsMessageRecord_received_message_with_new_safety_numbers_tap_to_process">Er is een bericht met nieuwe veiligheidsnummers ontvangen. Tik om te verwerken en te tonen.</string>
+  <string name="SmsMessageRecord_received_message_with_new_safety_number_tap_to_process">Er is een bericht met een nieuw veiligheidsnummer ontvangen. Tik om te verwerken en te tonen.</string>
   <string name="SmsMessageRecord_secure_session_reset">Je hebt de beveiligde sessie opnieuw ingesteld.</string>
   <string name="SmsMessageRecord_secure_session_reset_s">%s heeft de beveiligde sessie opnieuw ingesteld.</string>
   <string name="SmsMessageRecord_duplicate_message">Gedupliceerd bericht.</string>
   <!--ThreadRecord-->
-  <string name="ThreadRecord_left_the_group">Je hebt deze groep verlaten...</string>
+  <string name="ThreadRecord_left_the_group">Heeft de groep verlaten</string>
   <string name="ThreadRecord_secure_session_reset">Beveiligde sessie opnieuw ingesteld.</string>
   <string name="ThreadRecord_draft">Concept:</string>
   <string name="ThreadRecord_called">Jij hebt gebeld</string>
@@ -480,23 +484,22 @@ Sleuteluitwisselingsbericht ontvangen voor een verkeerde protocol-versie.</strin
   <string name="ThreadRecord_media_message">Mediabericht</string>
   <string name="ThreadRecord_s_is_on_signal_say_hey">%s gebruikt nu Signal, zeg hallo!</string>
   <string name="ThreadRecord_disappearing_message_time_updated_to_s">Berichten zullen verdwijnen na %s</string>
-  <string name="ThreadRecord_your_safety_numbers_with_s_have_changed">Je veiligheidsnummers met %s zijn veranderd</string>
+  <string name="ThreadRecord_your_safety_number_with_s_has_changed">Je veiligheidsnummer met %s is veranderd.</string>
   <!--VerifyIdentityActivity-->
-  <string name="VerifyIdentityActivity_your_contact_is_running_an_old_version_of_signal">Dit contact gebruikt een oude versie van Signal. Vraag hen om Signal bij te werken vooraleer je de veiligheidsnummers verifieert.</string>
+  <string name="VerifyIdentityActivity_your_contact_is_running_an_old_version_of_signal">Dit contact gebruikt een oude versie van Signal. Vraag hen om Signal bij te werken vooraleer je het veiligheidsnummer verifieert.</string>
   <string name="VerifyIdentityActivity_your_contact_is_running_a_newer_version_of_Signal">Je contact gebruikt een nieuwere versie van Signal met een incompatibel QR-codeformaat. Werk Signal bij om te vergelijken.</string>
-  <string name="VerifyIdentityActivity_you_re_attempting_to_verify_safety_numbers_with">Je probeert veiligheidsnummers te verifiëren met %1$s, maar je hebt in plaats daarvan %2$s gescand.</string>
   <string name="VerifyIdentityActivity_the_scanned_qr_code_is_not_a_correctly_formatted_safety_number">De gescande QR-code is geen goed veiligheidsnummer. Probeer de code opnieuw te scannen.</string>
-  <string name="VerifyIdentityActivity_share_safety_numbers_via">Veiligheidsnummers delen via...</string>
-  <string name="VerifyIdentityActivity_our_signal_safety_numbers">Onze Signal-veiligheidsnummers:</string>
+  <string name="VerifyIdentityActivity_share_safety_number_via">Veiligheidsnummer delen via...</string>
+  <string name="VerifyIdentityActivity_our_signal_safety_number">Ons Signal-veiligheidsnummer:</string>
   <string name="VerifyIdentityActivity_no_app_to_share_to">Het lijkt erop dat je geen apps hebt om naar te delen.</string>
-  <string name="VerifyIdentityActivity_no_safety_numbers_to_compare_were_found_in_the_clipboard">Geen veiligheidsnummers gevonden in klembord</string>
+  <string name="VerifyIdentityActivity_no_safety_number_to_compare_was_found_in_the_clipboard">Geen veiligheidsnummer gevonden op het klembord</string>
   <!--KeyExchangeInitiator-->
   <string name="KeyExchangeInitiator_initiate_despite_existing_request_question">Initiëren ondanks bestaand verzoek?</string>
   <string name="KeyExchangeInitiator_send">Verzenden</string>
   <!--MessageDisplayHelper-->
-  <string name="MessageDisplayHelper_bad_encrypted_message">Verkeerd versleuteld bericht...</string>
+  <string name="MessageDisplayHelper_bad_encrypted_message">Verkeerd versleuteld bericht</string>
   <string name="MessageDisplayHelper_decrypting_please_wait">Ontsleutelen, even geduld...</string>
-  <string name="MessageDisplayHelper_message_encrypted_for_non_existing_session">Bericht ontsleuteld voor niet-bestaande sessie...</string>
+  <string name="MessageDisplayHelper_message_encrypted_for_non_existing_session">Bericht versleuteld voor niet-bestaande sessie</string>
   <!--EncryptingSmsDatabase-->
   <string name="EncryptingSmsDatabase_error_decrypting_message">Fout bij ontsleutelen  van bericht.</string>
   <!--ThreadDatabase-->
@@ -510,8 +513,8 @@ Sleuteluitwisselingsbericht ontvangen voor een verkeerde protocol-versie.</strin
   <string name="MmsDatabase_error_decrypting_message">Fout bij ontsleutelen  van bericht.</string>
   <!--MmsMessageRecord-->
   <string name="MmsMessageRecord_decrypting_mms_please_wait">MMS ontsleutelen, even geduld...</string>
-  <string name="MmsMessageRecord_bad_encrypted_mms_message">Verkeerd versleuteld MMS-bericht...</string>
-  <string name="MmsMessageRecord_mms_message_encrypted_for_non_existing_session">MMS-bericht versleuteld voor niet-bestaande sessie...</string>
+  <string name="MmsMessageRecord_bad_encrypted_mms_message">Verkeerd versleuteld MMS-bericht</string>
+  <string name="MmsMessageRecord_mms_message_encrypted_for_non_existing_session">MMS-bericht versleuteld voor niet-bestaande sessie</string>
   <!--MuteDialog-->
   <string name="MuteDialog_mute_notifications">Demp meldingen</string>
   <!--ApplicationMigrationService-->
@@ -527,7 +530,7 @@ Sleuteluitwisselingsbericht ontvangen voor een verkeerde protocol-versie.</strin
   <!--MessageNotifier-->
   <string name="MessageNotifier_d_new_messages_in_d_conversations">%1$d nieuwe berichten in %2$d gesprekken</string>
   <string name="MessageNotifier_most_recent_from_s">Meest recente van: %1$s</string>
-  <string name="MessageNotifier_locked_message">Vergrendeld bericht...</string>
+  <string name="MessageNotifier_locked_message">Versleuteld bericht</string>
   <string name="MessageNotifier_media_message_with_text">Mediabericht: %s</string>
   <string name="MessageNotifier_no_subject">(Geen onderwerp)</string>
   <string name="MessageNotifier_message_delivery_failed">Berichtaflevering mislukt.</string>
@@ -545,11 +548,20 @@ Sleuteluitwisselingsbericht ontvangen voor een verkeerde protocol-versie.</strin
   <string name="SingleRecipientNotificationBuilder_new_message">Nieuw bericht</string>
   <!--attachment_type_selector-->
   <string name="attachment_type_selector__image">Afbeelding</string>
+  <string name="attachment_type_selector__image_description">Afbeelding</string>
   <string name="attachment_type_selector__audio">Audio</string>
+  <string name="attachment_type_selector__audio_description">Audio</string>
   <string name="attachment_type_selector__video">Video</string>
+  <string name="attachment_type_selector__video_description">Video</string>
   <string name="attachment_type_selector__contact">Contactpersoon</string>
+  <string name="attachment_type_selector__contact_description">Contactpersoon</string>
   <string name="attachment_type_selector__camera">Camera</string>
+  <string name="attachment_type_selector__camera_description">Camera</string>
   <string name="attachment_type_selector__location">Locatie</string>
+  <string name="attachment_type_selector__location_description">Locatie</string>
+  <string name="attachment_type_selector__gif">GIF</string>
+  <string name="attachment_type_selector__gif_description">Gif</string>
+  <string name="attachment_type_selector__drawer_description">Bijlageoverzicht tonen/verbergen</string>
   <!--change_passphrase_activity-->
   <string name="change_passphrase_activity__old_passphrase">Oud wachtwoord</string>
   <string name="change_passphrase_activity__new_passphrase">Nieuw wachtwoord</string>
@@ -564,7 +576,7 @@ Sleuteluitwisselingsbericht ontvangen voor een verkeerde protocol-versie.</strin
   <!--ContactSelectionListFragment-->
   <string name="ContactSelectionlistFragment_select_for">Selecteer voor</string>
   <!--blocked_contacts_fragment-->
-  <string name="blocked_contacts_fragment__no_blocked_contacts">Geen geblokkeerde contacten...</string>
+  <string name="blocked_contacts_fragment__no_blocked_contacts">Geen geblokkeerde contacten</string>
   <!--contact_selection_recent_activity-->
   <string name="contact_selection_recent_activity__no_recent_calls">Geen recente oproepen.</string>
   <!--conversation_title_view-->
@@ -580,7 +592,8 @@ Sleuteluitwisselingsbericht ontvangen voor een verkeerde protocol-versie.</strin
   <string name="conversation_activity__compose_description">Berichtsamenstelling</string>
   <string name="conversation_activity__emoji_toggle_description">Emojitoetsenbord wisselen</string>
   <string name="conversation_activity__attachment_thumbnail">Bijlageminiatuur</string>
-  <string name="conversation_activity__quick_attachment_drawer_toggle_description">Bijlageoverzicht tonen/verbergen</string>
+  <string name="conversation_activity__quick_attachment_drawer_toggle_camera_description">Camera overzicht tonen/verbergen</string>
+  <string name="conversation_activity__quick_attachment_drawer_record_and_send_audio_description">Geluidsopname opnemen en verzenden</string>
   <string name="conversation_activity__enable_signal_for_sms">Gebruik Signal voor SMS</string>
   <!--conversation_input_panel-->
   <string name="conversation_input_panel__slide_to_cancel">SCHUIF OM TE ANNULEREN</string>
@@ -598,6 +611,10 @@ Sleuteluitwisselingsbericht ontvangen voor een verkeerde protocol-versie.</strin
   <string name="conversation_item_received__download">Download</string>
   <string name="conversation_item_received__contact_photo_description">Contactfoto</string>
   <string name="conversation_item_received__downloading">Downloaden</string>
+  <!--audio_view-->
+  <string name="audio_view__play_accessibility_description">Afspelen</string>
+  <string name="audio_view__pause_accessibility_description">Pauzeren</string>
+  <string name="audio_view__download_accessibility_description">Downloaden</string>
   <!--conversation_fragment_cab-->
   <string name="conversation_fragment_cab__batch_selection_mode"> Meerdere tegelijk selecteren</string>
   <string name="conversation_fragment_cab__batch_selection_amount">%s geselecteerd</string>
@@ -609,7 +626,7 @@ Sleuteluitwisselingsbericht ontvangen voor een verkeerde protocol-versie.</strin
   <!--device_link_fragment-->
   <string name="device_link_fragment__link_device">Apparaat koppelen</string>
   <!--device_list_fragment-->
-  <string name="device_list_fragment__no_devices_linked">Geen apparaten gekoppeld...</string>
+  <string name="device_list_fragment__no_devices_linked">Geen apparaten gekoppeld</string>
   <string name="device_list_fragment__link_new_device">Nieuw apparaat koppelen</string>
   <!--experience_upgrade_activity-->
   <string name="experience_upgrade_activity__continue">doorgaan</string>
@@ -703,7 +720,7 @@ Sleuteluitwisselingsbericht ontvangen voor een verkeerde protocol-versie.</strin
   <string name="recipient_preferences__block">Blokkeren</string>
   <string name="recipient_preferences__color">Kleur</string>
   <string name="recipient_preferences__color_for_this_contact">Kleur voor dit contact</string>
-  <string name="recipient_preferences__verify_safety_numbers">Veiligheidsnummers verifiëren</string>
+  <string name="recipient_preferences__verify_safety_number">Veiligheidsnummer verifiëren</string>
   <!--- redphone_call_controls-->
   <string name="redphone_call_card__signal_call">Signal oproep</string>
   <string name="redphone_call_controls__end_call">Oproep beëindigen</string>
@@ -770,10 +787,10 @@ Signal heeft te lang moeten wachten op het binnenkomen van de verificatie-SMS.</
   <string name="recipients_panel__to"><small>Typ een naam of nummer</small></string>
   <string name="recipients_panel__add_members">Leden toevoegen</string>
   <!--verify_display_fragment-->
-  <string name="verify_display_fragment__scan_the_code_on_your_contact_s_phone_or_ask_them_to_scan_your_code_to_verify_that_your_messages_are_end_to_end_encrypted_you_can_alternately_compare_the_number_above"><![CDATA[Als je de veiligheid van de beveiligde verbinding met %s wil verifiëren, moet je de nummers hierboven vergelijken met de nummers op hun apparaat. Een alternatieve methode is om de code op hun telefoon te scannen, of hen te vragen jouw code te scannen. <a href=\"https://whispersystems.org/redirect/safety-numbers\">Lees meer over het verifiëren van veiligheidsnummers</a>.]]></string>
+  <string name="verify_display_fragment__if_you_wish_to_verify_the_security_of_your_end_to_end_encryption_with_s"><![CDATA[Als je de veiligheid van de beveiligde verbinding met %s wil verifiëren, moet je het nummer hierboven vergelijken met het nummer op hun apparaat. Een alternatieve methode is om de code op hun telefoon te scannen, of hen te vragen jouw code te scannen. <a href=\\"https://whispersystems.org/redirect/safety-numbers\\">Lees meer over het verifiëren van een veiligheidsnummer</a>.]]></string>
   <string name="verify_display_fragment__tap_to_scan">Tik om te scannen</string>
   <!--verify_identity-->
-  <string name="verify_identity__share_safety_numbers">Veiligheidsnummers delen</string>
+  <string name="verify_identity__share_safety_number">Veiligheidsnummer delen</string>
   <!--message_details_header-->
   <string name="message_details_header__issues_need_your_attention">Enkele dingen vergen je aandacht.</string>
   <string name="message_details_header__sent">Verzonden</string>
@@ -789,7 +806,7 @@ Signal heeft te lang moeten wachten op het binnenkomen van de verificatie-SMS.</
   <string name="AndroidManifest__select_contacts">Contacten selecteren</string>
   <string name="AndroidManifest__signal_detected">Signal gedetecteerd</string>
   <string name="AndroidManifest__change_passphrase">Wachtwoord wijzigen</string>
-  <string name="AndroidManifest__verify_safety_numbers">Veiligheidsnummers verifiëren</string>
+  <string name="AndroidManifest__verify_safety_number">Veiligheidsnummer verifiëren</string>
   <string name="AndroidManifest__log_submit">Debuglog indienen</string>
   <string name="AndroidManifest__media_preview">Mediaminiatuur</string>
   <string name="AndroidManifest__media_overview">Alle afbeeldingen</string>
@@ -1042,6 +1059,7 @@ Signal heeft te lang moeten wachten op het binnenkomen van de verificatie-SMS.</
   <!--media_preview-->
   <string name="media_preview__save_title">Opslaan</string>
   <string name="media_preview__forward_title">Doorsturen</string>
+  <string name="media_preview__overview_title">Alle afbeeldingen</string>
   <!--media_overview-->
   <string name="media_overview__save_all">Alles opslaan</string>
   <!--media_preview_activity-->

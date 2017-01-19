@@ -19,7 +19,7 @@ import com.stripe.android.model.Card;
 import com.stripe.android.model.Token;
 
 import org.thoughtcrime.securesms.R;
-import org.thoughtcrime.securesms.push.TextSecureCommunicationFactory;
+import org.thoughtcrime.securesms.push.BillingManagerFactory;
 import org.whispersystems.signalservice.api.SignalServiceBillingManager;
 
 import java.io.IOException;
@@ -100,7 +100,7 @@ public class PaymentController {
                     String productId = params[1];
                     String skuId = params[2];
 
-                    SignalServiceBillingManager billingManager = TextSecureCommunicationFactory.createBillingManager(context);
+                    SignalServiceBillingManager billingManager = BillingManagerFactory.createManager(context);
 
                     if (skuId != null) {
                         // TODO: ignore the return value? or do something with it?

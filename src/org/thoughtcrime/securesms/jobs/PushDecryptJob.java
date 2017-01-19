@@ -17,6 +17,7 @@ import org.thoughtcrime.securesms.crypto.storage.SignalProtocolStoreImpl;
 import org.thoughtcrime.securesms.crypto.storage.TextSecureSessionStore;
 import org.thoughtcrime.securesms.database.DatabaseFactory;
 import org.thoughtcrime.securesms.database.EncryptingSmsDatabase;
+import org.thoughtcrime.securesms.database.GroupDatabase;
 import org.thoughtcrime.securesms.database.MessagingDatabase.SyncMessageId;
 import org.thoughtcrime.securesms.database.MmsDatabase;
 import org.thoughtcrime.securesms.database.NoSuchMessageException;
@@ -133,9 +134,10 @@ public class PushDecryptJob extends ContextJob {
 
   private void handleMessage(MasterSecretUnion masterSecret, SignalServiceEnvelope envelope, Optional<Long> smsMessageId) {
     try {
-      SignalProtocolStore  axolotlStore = new SignalProtocolStoreImpl(context);
-      SignalServiceAddress localAddress = new SignalServiceAddress(TextSecurePreferences.getLocalNumber(context));
-      SignalServiceCipher  cipher       = new SignalServiceCipher(localAddress, axolotlStore);
+      GroupDatabase        groupDatabase = DatabaseFactory.getGroupDatabase(context);
+      SignalProtocolStore  axolotlStore  = new SignalProtocolStoreImpl(context);
+      SignalServiceAddress localAddress  = new SignalServiceAddress(TextSecurePreferences.getLocalNumber(context));
+      SignalServiceCipher  cipher        = new SignalServiceCipher(localAddress, axolotlStore);
 
       SignalServiceContent content = cipher.decrypt(envelope);
 
@@ -148,6 +150,10 @@ public class PushDecryptJob extends ContextJob {
         else if (message.isExpirationUpdate())         handleExpirationUpdate(masterSecret, envelope, message, smsMessageId);
         else if (message.getAttachments().isPresent()) handleMediaMessage(masterSecret, envelope, message, smsMessageId);
         else                                           handleTextMessage(masterSecret, envelope, message, smsMessageId);
+
+        if (message.getGroupInfo().isPresent() && groupDatabase.isUnknownGroup(message.getGroupInfo().get().getGroupId())) {
+          handleUnknownGroupMessage(envelope, message.getGroupInfo().get());
+        }
       } else if (content.getSyncMessage().isPresent()) {
         SignalServiceSyncMessage syncMessage = content.getSyncMessage().get();
 
@@ -247,6 +253,14 @@ public class PushDecryptJob extends ContextJob {
     }
   }
 
+  private void handleUnknownGroupMessage(@NonNull SignalServiceEnvelope envelope,
+                                         @NonNull SignalServiceGroup group)
+  {
+    ApplicationContext.getInstance(context)
+                      .getJobManager()
+                      .add(new RequestGroupInfoJob(context, envelope.getSource(), group.getGroupId()));
+  }
+
   private void handleExpirationUpdate(@NonNull MasterSecretUnion masterSecret,
                                       @NonNull SignalServiceEnvelope envelope,
                                       @NonNull SignalServiceDataMessage message,
@@ -280,6 +294,8 @@ public class PushDecryptJob extends ContextJob {
                                             @NonNull Optional<Long> smsMessageId)
       throws MmsException
   {
+    GroupDatabase groupDatabase = DatabaseFactory.getGroupDatabase(context);
+
     Long threadId;
 
     if (message.getMessage().isGroupUpdate()) {
@@ -290,6 +306,10 @@ public class PushDecryptJob extends ContextJob {
       threadId = handleSynchronizeSentMediaMessage(masterSecret, message, smsMessageId);
     } else {
       threadId = handleSynchronizeSentTextMessage(masterSecret, message, smsMessageId);
+    }
+
+    if (message.getMessage().getGroupInfo().isPresent() && groupDatabase.isUnknownGroup(message.getMessage().getGroupInfo().get().getGroupId())) {
+      handleUnknownGroupMessage(envelope, message.getMessage().getGroupInfo().get());
     }
 
     if (threadId != null) {
@@ -401,8 +421,7 @@ public class PushDecryptJob extends ContextJob {
     long threadId  = DatabaseFactory.getThreadDatabase(context).getThreadIdFor(recipients);
     long messageId = database.insertMessageOutbox(masterSecret, expirationUpdateMessage, threadId, false);
 
-    database.markAsSent(messageId);
-    database.markAsPush(messageId);
+    database.markAsSent(messageId, true);
 
     DatabaseFactory.getRecipientPreferenceDatabase(context).setExpireMessages(recipients, message.getMessage().getExpiresInSeconds());
 
@@ -435,8 +454,7 @@ public class PushDecryptJob extends ContextJob {
     long threadId  = DatabaseFactory.getThreadDatabase(context).getThreadIdFor(recipients);
     long messageId = database.insertMessageOutbox(masterSecret, mediaMessage, threadId, false);
 
-    database.markAsSent(messageId);
-    database.markAsPush(messageId);
+    database.markAsSent(messageId, true);
 
     for (DatabaseAttachment attachment : DatabaseFactory.getAttachmentDatabase(context).getAttachmentsForMessage(messageId)) {
       ApplicationContext.getInstance(context)
@@ -512,9 +530,7 @@ public class PushDecryptJob extends ContextJob {
     long threadId  = DatabaseFactory.getThreadDatabase(context).getThreadIdFor(recipients);
     long messageId = database.insertMessageOutbox(masterSecret, threadId, outgoingTextMessage, false, message.getTimestamp());
 
-    database.markAsSent(messageId);
-    database.markAsPush(messageId);
-    database.markAsSecure(messageId);
+    database.markAsSent(messageId, true);
 
     if (smsMessageId.isPresent()) {
       database.deleteMessage(smsMessageId.get());
@@ -614,9 +630,10 @@ public class PushDecryptJob extends ContextJob {
       EncryptingSmsDatabase database       = DatabaseFactory.getEncryptingSmsDatabase(context);
       Recipients            recipients     = RecipientFactory.getRecipientsFromString(context, envelope.getSource(), false);
       long                  recipientId    = recipients.getPrimaryRecipient().getRecipientId();
-      PreKeySignalMessage   whisperMessage = new PreKeySignalMessage(envelope.getLegacyMessage());
+      byte[]                ciphertext     = envelope.hasLegacyMessage() ? envelope.getLegacyMessage() : envelope.getContent();
+      PreKeySignalMessage   whisperMessage = new PreKeySignalMessage(ciphertext);
       IdentityKey           identityKey    = whisperMessage.getIdentityKey();
-      String                encoded        = Base64.encodeBytes(envelope.getLegacyMessage());
+      String                encoded        = Base64.encodeBytes(ciphertext);
       IncomingTextMessage   textMessage    = new IncomingTextMessage(envelope.getSource(), envelope.getSourceDevice(),
                                                                      envelope.getTimestamp(), encoded,
                                                                      Optional.<SignalServiceGroup>absent(), 0);

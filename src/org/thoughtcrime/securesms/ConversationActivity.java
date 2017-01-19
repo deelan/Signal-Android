@@ -38,10 +38,12 @@ import android.provider.Browser;
 import android.provider.ContactsContract;
 import android.provider.Telephony;
 import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.support.v4.view.MenuItemCompat;
 import android.support.v4.view.WindowCompat;
 import android.support.v7.app.AlertDialog;
 import android.text.Editable;
+import android.text.TextUtils;
 import android.text.TextWatcher;
 import android.util.Log;
 import android.util.Pair;
@@ -129,12 +131,13 @@ import org.thoughtcrime.securesms.payment.Payment;
 import org.thoughtcrime.securesms.payment.PaymentList;
 import org.thoughtcrime.securesms.payment.PaymentListFragment;
 import org.thoughtcrime.securesms.providers.PersistentBlobProvider;
-import org.thoughtcrime.securesms.push.TextSecureCommunicationFactory;
+import org.thoughtcrime.securesms.push.BillingManagerFactory;
 import org.thoughtcrime.securesms.recipients.Recipient;
 import org.thoughtcrime.securesms.recipients.RecipientFactory;
 import org.thoughtcrime.securesms.recipients.RecipientFormattingException;
 import org.thoughtcrime.securesms.recipients.Recipients;
 import org.thoughtcrime.securesms.recipients.Recipients.RecipientsModifiedListener;
+import org.thoughtcrime.securesms.scribbles.ScribbleActivity;
 import org.thoughtcrime.securesms.service.KeyCachingService;
 import org.thoughtcrime.securesms.sms.MessageSender;
 import org.thoughtcrime.securesms.sms.OutgoingEncryptedMessage;
@@ -191,7 +194,8 @@ public class ConversationActivity extends PassphraseRequiredActionBarActivity
                RecipientsModifiedListener,
                OnKeyboardShownListener,
                AttachmentDrawerListener,
-               InputPanel.Listener
+               InputPanel.Listener,
+               InputPanel.MediaListener
 {
   private static final String TAG = ConversationActivity.class.getSimpleName();
 
@@ -413,6 +417,9 @@ public class ConversationActivity extends PassphraseRequiredActionBarActivity
     case PICK_GIF:
       setMedia(data.getData(), MediaType.GIF);
       break;
+    case ScribbleActivity.SCRIBBLE_REQUEST_CODE:
+      setMedia(data.getData(), MediaType.IMAGE);
+      break;
     }
   }
 
@@ -549,6 +556,10 @@ public class ConversationActivity extends PassphraseRequiredActionBarActivity
   }
 
   private void handleSelectMessageExpiration() {
+    if (isPushGroupConversation() && !isActiveGroup()) {
+      return;
+    }
+
     ExpirationDialog.show(this, recipients.getExpireMessages(), new ExpirationDialog.OnClickListener() {
       @Override
       public void onClick(final int expirationTime) {
@@ -1059,6 +1070,7 @@ public class ConversationActivity extends PassphraseRequiredActionBarActivity
 
     container.addOnKeyboardShownListener(this);
     inputPanel.setListener(this, emojiDrawer);
+    inputPanel.setMediaListener(this);
 
     int[]      attributes   = new int[]{R.attr.conversation_item_bubble_background};
     TypedArray colors       = obtainStyledAttributes(attributes);
@@ -1095,6 +1107,8 @@ public class ConversationActivity extends PassphraseRequiredActionBarActivity
       public void onClick(View v) {
         Intent intent = new Intent(ConversationActivity.this, RecipientPreferenceActivity.class);
         intent.putExtra(RecipientPreferenceActivity.RECIPIENTS_EXTRA, recipients.getIds());
+        intent.putExtra(RecipientPreferenceActivity.CAN_HAVE_SAFETY_NUMBER_EXTRA,
+                        isSecureText && !isSelfConversation());
 
         startActivitySceneTransition(intent, titleView.findViewById(R.id.title), "recipient_name");
       }
@@ -1209,7 +1223,7 @@ public class ConversationActivity extends PassphraseRequiredActionBarActivity
       new AsyncTask<Void, Void, Map<String, Object>>() {
         @Override
         protected Map<String, Object> doInBackground(Void... params) {
-          SignalServiceBillingManager billingManager = TextSecureCommunicationFactory.createBillingManager(ConversationActivity.this);
+          SignalServiceBillingManager billingManager = BillingManagerFactory.createManager(ConversationActivity.this);
 
           if (isSingleConversation()) {
             try {
@@ -1326,11 +1340,11 @@ public class ConversationActivity extends PassphraseRequiredActionBarActivity
     case AttachmentTypeSelectorAdapter.TAKE_PHOTO:
       attachmentManager.capturePhoto(this, TAKE_PHOTO); break;
     case AttachmentTypeSelector.ADD_GIF:
-      AttachmentManager.selectGif(this, PICK_GIF); break;
+      AttachmentManager.selectGif(this, PICK_GIF, !isSecureText); break;
     }
   }
 
-  private void setMedia(Uri uri, MediaType mediaType) {
+  private void setMedia(@Nullable Uri uri, @NonNull MediaType mediaType) {
     if (uri == null) return;
     attachmentManager.setMedia(masterSecret, uri, mediaType, getCurrentMediaConstraints());
   }
@@ -1373,10 +1387,10 @@ public class ConversationActivity extends PassphraseRequiredActionBarActivity
     }
 
     for (Slide slide : attachmentManager.buildSlideDeck().getSlides()) {
-      if      (slide.hasAudio())    drafts.add(new Draft(Draft.AUDIO, slide.getUri().toString()));
-      else if (slide.hasVideo())    drafts.add(new Draft(Draft.VIDEO, slide.getUri().toString()));
-      else if (slide.hasLocation()) drafts.add(new Draft(Draft.LOCATION, ((LocationSlide)slide).getPlace().serialize()));
-      else if (slide.hasImage())    drafts.add(new Draft(Draft.IMAGE, slide.getUri().toString()));
+      if      (slide.hasAudio() && slide.getUri() != null)    drafts.add(new Draft(Draft.AUDIO, slide.getUri().toString()));
+      else if (slide.hasVideo() && slide.getUri() != null)    drafts.add(new Draft(Draft.VIDEO, slide.getUri().toString()));
+      else if (slide.hasLocation())                           drafts.add(new Draft(Draft.LOCATION, ((LocationSlide)slide).getPlace().serialize()));
+      else if (slide.hasImage() && slide.getUri() != null)    drafts.add(new Draft(Draft.IMAGE, slide.getUri().toString()));
     }
 
     return drafts;
@@ -1787,6 +1801,20 @@ public class ConversationActivity extends PassphraseRequiredActionBarActivity
     if (container.getCurrentInput() == emojiDrawer) container.showSoftkey(composeText);
     else                                            container.show(composeText, emojiDrawer);
   }
+
+  @Override
+  public void onMediaSelected(@NonNull Uri uri, String contentType) {
+    if (!TextUtils.isEmpty(contentType) && contentType.trim().equals("image/gif")) {
+      setMedia(uri, MediaType.GIF);
+    } else if (ContentType.isImageType(contentType)) {
+      setMedia(uri, MediaType.IMAGE);
+    } else if (ContentType.isVideoType(contentType)) {
+      setMedia(uri, MediaType.VIDEO);
+    } else if (ContentType.isAudioType(contentType)) {
+      setMedia(uri, MediaType.AUDIO);
+    }
+  }
+
 
   // Listeners
 

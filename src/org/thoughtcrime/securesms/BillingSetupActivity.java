@@ -12,7 +12,7 @@ import android.widget.Toast;
 import com.google.gson.Gson;
 
 import org.thoughtcrime.securesms.crypto.MasterSecret;
-import org.thoughtcrime.securesms.push.TextSecureCommunicationFactory;
+import org.thoughtcrime.securesms.push.BillingManagerFactory;
 import org.thoughtcrime.securesms.util.DynamicLanguage;
 import org.thoughtcrime.securesms.util.DynamicTheme;
 import org.thoughtcrime.securesms.util.TextSecurePreferences;
@@ -99,7 +99,7 @@ public class BillingSetupActivity extends PassphraseRequiredActionBarActivity im
             protected Integer doInBackground(String... params) {
                 try {
                     Context                     context          = BillingSetupActivity.this;
-                    SignalServiceBillingManager billingManager   = TextSecureCommunicationFactory.createBillingManager(context);
+                    SignalServiceBillingManager billingManager   = BillingManagerFactory.createManager(context);
 
                     BillingInfo billingInfo = billingManager.connectAccount(params[0]);
 
